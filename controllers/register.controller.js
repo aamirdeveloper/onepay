@@ -74,7 +74,7 @@ function index(req, res){
     }).catch(error => {
         res.status(200).json({
             status: 2,
-            message: "Something went wrong"
+            message: "Something went really wrong"
         });
     });
 }
