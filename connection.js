@@ -3,7 +3,7 @@ let mysql = require('./node_modules/mysql2');
 let connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '',
+    password: 'aXNkdfmlFpg123XfggNd',
     database: 'onepay'
 });
 
