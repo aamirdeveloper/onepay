@@ -51,15 +51,14 @@ function index(req, res){
                         res.status(200).json({
                             status: 1,
                             message: "Registered successfully",
-                            post: result
+                            post: result,
+                            token: token
                         });
                     }).catch(error => {
                         res.status(200).json({
                             status: 2,
-                            message: "Something went wrong",
-                            token: token
+                            message: "Something went wrong"
                         });
-                        
                     });
                 });
             });
