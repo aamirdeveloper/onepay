@@ -48,7 +48,7 @@ function index(req, res){
                             userId: post.id
                         }
                         const token = jwt.sign(data, jwtSecretKey);
-
+                        console.log(token);
                         res.status(200).json({
                             status: 1,
                             message: "Registered successfully",
@@ -58,9 +58,9 @@ function index(req, res){
                     }).catch(error => {
                         res.status(200).json({
                             status: 2,
-                            message: "Something went wrong",
-                            error: token
+                            message: "Something went wrong"
                         });
+                        
                     });
                 });
             });
