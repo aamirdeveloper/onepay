@@ -59,7 +59,9 @@ function index(req, res){
                         res.status(200).json({
                             status: 2,
                             message: "Something went wrong",
-                            error: error
+                            error: error,
+                            data: data,
+                            token: token
                         });
                     });
                 });
