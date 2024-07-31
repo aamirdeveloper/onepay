@@ -67,7 +67,7 @@ function login(req, res){
     }).catch(error => {
         res.status(200).json({
             status: 2,
-            message: "Something went wrong"
+            message: "Something really went wrong"
         });
     });
 }
