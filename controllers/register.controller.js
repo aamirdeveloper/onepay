@@ -47,13 +47,11 @@ function index(req, res){
                             email: post.email,
                             userId: post.id
                         }
-                        const token = jwt.sign(data, jwtSecretKey);
-                        console.log(token);
+                        //const token = jwt.sign(data, jwtSecretKey);
                         res.status(200).json({
                             status: 1,
                             message: "Registered successfully",
-                            post: result,
-                            token: token
+                            post: result
                         });
                     }).catch(error => {
                         res.status(200).json({
