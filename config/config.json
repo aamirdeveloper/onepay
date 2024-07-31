@@ -1,22 +1,22 @@
 {
   "development": {
    "host": "localhost",
-    "user": "pma",
-    "password": "mc92nvnrooC2owotDfF2@FjNG",
+    "user": "root",
+    "password": "aXNkdfmlFpg123XfggNd",
     "database": "onepay",
     "dialect": "mysql"
   },
   "test": {
     "host": "localhost",
-    "user": "pma",
-    "password": "mc92nvnrooC2owotDfF2@FjNG",
+    "user": "root",
+    "password": "aXNkdfmlFpg123XfggNd",
     "database": "onepay",
     "dialect": "mysql"
   },
   "production": {
     "host": "localhost",
-    "user": "pma",
-    "password": "mc92nvnrooC2owotDfF2@FjNG",
+    "user": "root",
+    "password": "aXNkdfmlFpg123XfggNd",
     "database": "onepay",
     "dialect": "mysql"
   }
