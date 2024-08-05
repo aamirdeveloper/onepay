@@ -16,7 +16,7 @@ function index(req, res){
     const schema = {
         email: {type: "string", optional: false, empty: false},
         password: {type: "string", optional: false, empty: false},
-        referenceId: {type: "string", optional: false, empty: false},
+        referenceId: {type: "string", optional: false},
     }
 
     const v = new Validator();
@@ -48,6 +48,7 @@ function index(req, res){
                             userId: post.id
                         }
                         const token = jwt.sign(data, jwtSecretKey);
+
                         res.status(200).json({
                             status: 1,
                             message: "Registered successfully",
@@ -57,7 +58,8 @@ function index(req, res){
                     }).catch(error => {
                         res.status(200).json({
                             status: 2,
-                            message: "Something went wrong"
+                            message: "Something went wrong",
+                            error: error
                         });
                     });
                 });
@@ -72,7 +74,7 @@ function index(req, res){
     }).catch(error => {
         res.status(200).json({
             status: 2,
-            message: "Something went really wrong"
+            message: "Something went wrong"
         });
     });
 }
