@@ -13,4 +13,7 @@ router.post('/users-transactions', adminController.users_transactions)
 
 router.get('/contact-requests', adminController.contact_requests)
 
+router.post('/add-bank-account', adminController.add_bank_account)
+router.get('/bank-accounts-list', adminController.bank_accounts_list)
+
 module.exports= router;
