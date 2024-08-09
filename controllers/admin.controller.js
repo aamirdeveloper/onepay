@@ -5,6 +5,69 @@ const helper = require('../helper');
 const bycryptjs = require("bcryptjs");
 require('dotenv').config();
 
+function index(req, res){
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        let totalTransaction = 0;
+        let totalDeposit = 0;
+        let totalWithdraw = 0;
+        let totalBalance = 0;
+
+        models.User.sum('totalDeposit').then(result =>{
+            totalDeposit = result;
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong!",
+                error: error
+            });
+        });
+
+        models.User.sum('totalWithdraw').then(result =>{
+            totalWithdraw = result;
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong!",
+                error: error
+            });
+        });
+
+        models.User.sum('balance').then(result =>{
+            totalBalance = result;
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong!",
+                error: error
+            });
+        });
+
+        models.Transaction.findAll().then(result1 => {
+
+            totalTransaction = result1.length;
+
+            var arr = {
+                status: 1, 
+                "message": "success",
+                "totalDeposit": totalDeposit,
+                "totalWithdraw": totalWithdraw,
+                "totalBalance": totalBalance,
+                "totalTransaction": totalTransaction
+            };
+
+            res.status(200).json(arr);
+        });
+        
+    }
+}
+
 //Login function
 function login(req, res){
     const post = {
@@ -352,6 +415,7 @@ function bank_accounts_list(req, res) {
 }
 
 module.exports = {
+    index:index,
     login: login,
     change_password: change_password,
     all_transactions:all_transactions,
