@@ -415,6 +415,7 @@ function bank_accounts_list(req, res) {
 }
 
 module.exports = {
+    index:index,
     login: login,
     change_password: change_password,
     all_transactions:all_transactions,
