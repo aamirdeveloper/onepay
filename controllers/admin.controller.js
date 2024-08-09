@@ -275,11 +275,89 @@ function contact_requests(req, res){
     }
 }
 
+function add_bank_account(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        const post = {
+            bankName: req.body.bankName,
+            bankAccountNumber: req.body.bankAccountNumber,
+            bankAccountName: req.body.bankAccountName
+        }
+
+        const schema = {
+            bankName: {type: "string", optional: false, empty: false},
+            bankAccountNumber: {type: "string", optional: false, empty: false},
+            bankAccountName: {type: "string", optional: false, empty: false}
+        }
+
+        const v = new Validator();
+        const validationResponse = v.validate(post, schema);
+
+        if(validationResponse !== true){
+            return res.status(200).json({
+                status: 0,
+                message: "validation failed",
+                errors: validationResponse
+            });
+        }
+
+        // let login_data = helper.get_adminId_token(req);
+        // const adminId = login_data.adminId;
+
+        models.BankAccount.create(post).then(result => {
+
+            res.status(200).json({
+                status: 1,
+                message: "Data saved",
+                post: result
+            });
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong",
+                error: error
+            });
+        });
+    }
+}
+
+function bank_accounts_list(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        models.BankAccount.findAll().then(result => {
+            res.status(200).json({
+                status: 1,
+                data: result
+            });
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong!",
+                error: error
+            });
+        });
+    }
+}
+
 module.exports = {
     login: login,
     change_password: change_password,
     all_transactions:all_transactions,
     all_users:all_users,
     users_transactions:users_transactions,
-    contact_requests:contact_requests
+    contact_requests:contact_requests,
+    add_bank_account:add_bank_account,
+    bank_accounts_list:bank_accounts_list
 };
