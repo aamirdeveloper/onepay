@@ -10,6 +10,9 @@ router.get('/get-login-status', loginController.get_login_status);
 router.get('/logout', loginController.logout);
 
 router.post('/change-password', loginController.change_password)
+/*----------------------------------------------------------*/
 router.get('/dashboard', userController.index);
+
+router.post('/add-payment-link', userController.uploadImg, userController.add_payment_link);
 
 module.exports= router;
