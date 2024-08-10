@@ -414,6 +414,163 @@ function bank_accounts_list(req, res) {
     }
 }
 
+function assign_bank_account(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        const post = {
+            userId: req.body.userId,
+            bankAccountId: req.body.bankAccountId
+        }
+
+        const schema = {
+            userId: {type: "string", optional: false, empty: false},
+            bankAccountId: {type: "string", optional: false, empty: false},
+        }
+
+        const v = new Validator();
+        const validationResponse = v.validate(post, schema);
+
+        if(validationResponse !== true){
+            return res.status(200).json({
+                status: 0,
+                message: "validation failed",
+                errors: validationResponse
+            });
+        }
+
+        models.UsersBank.findOne({
+            where:{userId:req.body.userId, bankAccountId:req.body.bankAccountId}
+        }).then(result =>{
+            if(result === null){
+                models.UsersBank.create(post).then(result => {
+
+                    res.status(200).json({
+                        status: 1,
+                        message: "Data saved",
+                        post: result
+                    });
+                }).catch(error => {
+                    res.status(200).json({
+                        status: 2,
+                        message: "Something went wrong",
+                        error: error
+                    });
+                });
+            }
+            else
+            {
+                res.status(200).json({
+                    status: 3,
+                    message: "Already added"
+                });
+            }
+        })
+    }
+}
+
+function users_bank_accounts(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        const post = {
+            userId: req.body.userId
+        }
+
+        const schema = {
+            userId: {type: "string", optional: false, empty: false}
+        }
+
+        const v = new Validator();
+        const validationResponse = v.validate(post, schema);
+
+        if(validationResponse !== true){
+            return res.status(200).json({
+                status: 0,
+                message: "validation failed",
+                errors: validationResponse
+            });
+        }
+
+        let userId = post.userId;
+
+        models.UsersBank.findAll().then(result => {
+            res.status(200).json({
+                status: 1,
+                data: result
+            });
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong!",
+                error: error
+            });
+        });
+    }
+}
+
+function remove_users_bank_account(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        const post = {
+            userId: req.body.userId,
+            bankAccountId: req.body.bankAccountId
+        }
+
+        const schema = {
+            userId: {type: "string", optional: false, empty: false},
+            bankAccountId: {type: "string", optional: false, empty: false}
+        }
+
+        const v = new Validator();
+        const validationResponse = v.validate(post, schema);
+
+        if(validationResponse !== true){
+            return res.status(200).json({
+                status: 0,
+                message: "validation failed",
+                errors: validationResponse
+            });
+        }
+
+        models.UsersBank.destroy({
+            where:{userId:req.body.userId, bankAccountId:req.body.bankAccountId}
+        }).then(result =>{
+            if(result === 1)
+            {
+                res.status(200).json({
+                    status: 1,
+                    message: "Data removed",
+                    post: result
+                });
+            }
+            else
+            {
+                res.status(200).json({
+                    status: 2,
+                    message: "Something went wrong!"
+                });
+            }
+        })
+    }
+}
+
 module.exports = {
     index:index,
     login: login,
@@ -423,5 +580,8 @@ module.exports = {
     users_transactions:users_transactions,
     contact_requests:contact_requests,
     add_bank_account:add_bank_account,
-    bank_accounts_list:bank_accounts_list
+    bank_accounts_list:bank_accounts_list,
+    assign_bank_account:assign_bank_account,
+    users_bank_accounts:users_bank_accounts,
+    remove_users_bank_account:remove_users_bank_account
 };
