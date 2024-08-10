@@ -17,4 +17,8 @@ router.get('/contact-requests', adminController.contact_requests)
 router.post('/add-bank-account', adminController.add_bank_account)
 router.get('/bank-accounts-list', adminController.bank_accounts_list)
 
+router.post('/assign-bank-account', adminController.assign_bank_account)
+router.post('/users-bank-accounts', adminController.users_bank_accounts)
+router.post('/remove-users-bank-account', adminController.remove_users_bank_account)
+
 module.exports= router;
