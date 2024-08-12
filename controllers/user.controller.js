@@ -137,8 +137,37 @@ function generateCode(length) {
     return retVal;
 }
 
+function all_payment_links(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        models.PaymentLink.findAll({
+            attributes: [
+               'id', 'userId', 'paymentType', 'productName', 'productImage', 'price', 'currency', 'paymentCode'
+            ],
+        }).then(result => {
+            res.status(200).json({
+                status: 1,
+                data: result
+            });
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong!",
+                error: error
+            });
+        });
+    }
+}
+
 module.exports = {
     index:index,
     add_payment_link:add_payment_link,
-    uploadImg:uploadImg
+    uploadImg:uploadImg,
+    all_payment_links:all_payment_links
 };
