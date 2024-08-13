@@ -165,9 +165,78 @@ function all_payment_links(req, res) {
     }
 }
 
+function add_widget(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        let user = helper.get_userId_token(req);
+        let userId = user.userId;
+
+        const post1 = {
+            websiteDomain: req.body.websiteDomain,
+            paymentTypes: req.body.paymentTypes
+        }
+
+        const schema = {
+            websiteDomain: {type: "string", optional: false, empty: false},
+            paymentTypes: {type: "array", optional: false, empty: false}
+        }
+
+        const v = new Validator();
+        const validationResponse = v.validate(post1, schema);
+
+        if(validationResponse !== true){
+            return res.status(200).json({
+                status: 0,
+                message: "validation failed",
+                errors: validationResponse
+            });
+        }
+
+        let types = post1.paymentTypes; 
+        let paymentTypes = types.toString();
+
+        let taxId = "";
+        if(!req.body.taxId)
+        {
+            //
+        }
+        else
+            taxId = req.body.taxId;
+
+        let post = {
+            userId:userId,
+            websiteDomain: req.body.websiteDomain,
+            taxId: taxId,
+            paymentTypes: paymentTypes
+        }
+        console.log(post);
+        
+        models.Widget.create(post).then(result => {
+            res.status(200).json({
+                status: 1,
+                message: "added successfully",
+                post: result
+            });
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong save",
+                error: error
+            });
+        });
+    }
+}
+
 module.exports = {
     index:index,
     add_payment_link:add_payment_link,
     uploadImg:uploadImg,
-    all_payment_links:all_payment_links
+    all_payment_links:all_payment_links,
+    add_widget:add_widget
 };
