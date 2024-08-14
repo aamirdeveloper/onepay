@@ -209,13 +209,14 @@ function add_widget(req, res) {
         else
             taxId = req.body.taxId;
 
+        let widgetCode = generateCode(10);
         let post = {
             userId:userId,
             websiteDomain: req.body.websiteDomain,
             taxId: taxId,
-            paymentTypes: paymentTypes
+            paymentTypes: paymentTypes,
+            widgetCode: widgetCode
         }
-        console.log(post);
         
         models.Widget.create(post).then(result => {
             res.status(200).json({
