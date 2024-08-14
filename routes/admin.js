@@ -21,4 +21,8 @@ router.post('/assign-bank-account', adminController.assign_bank_account)
 router.post('/users-bank-accounts', adminController.users_bank_accounts)
 router.post('/remove-users-bank-account', adminController.remove_users_bank_account)
 
+router.post('/add-crypto-account', adminController.uploadImg, adminController.add_crypto_account);
+router.get('/crypto-account-list', adminController.crypto_account_list);
+router.post('/delete-crypto-account', adminController.delete_crypto_account);
+
 module.exports= router;
