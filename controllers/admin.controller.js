@@ -571,6 +571,158 @@ function remove_users_bank_account(req, res) {
     }
 }
 
+function add_crypto_account(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        let imageUrl = '';
+        if(req.hasOwnProperty('file'))
+        {
+            imageUrl = req.file.filename;
+        }
+
+        let network = "";
+        if(!req.body.network)
+        {
+            //
+        }
+        else
+            network = req.body.network;
+
+        const post = {
+            currency: req.body.currency,
+            walletAddress: req.body.walletAddress,
+            network: network,
+            QRImage: imageUrl
+        }
+
+        const schema = {
+            currency: {type: "string", optional: false, empty: false},
+            walletAddress: {type: "string", optional: false, empty: false}
+        }
+
+        const v = new Validator();
+        const validationResponse = v.validate(post, schema);
+
+        if(validationResponse !== true){
+            return res.status(200).json({
+                status: 0,
+                message: "validation failed",
+                errors: validationResponse
+            });
+        }
+
+        models.CryptoAccount.create(post).then(result => {
+            res.status(200).json({
+                status: 1,
+                message: "added successfully",
+                post: result
+            });
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong save",
+                error: error
+            });
+        });
+    }
+}
+
+function crypto_account_list(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        models.CryptoAccount.findAll().then(result => {
+            res.status(200).json({
+                status: 1,
+                data: result
+            });
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong!",
+                error: error
+            });
+        });
+    }
+}
+
+function delete_crypto_account(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        const post = {
+            id: req.body.id
+        }
+
+        const schema = {
+            id: {type: "string", optional: false, empty: false}
+        }
+
+        const v = new Validator();
+        const validationResponse = v.validate(post, schema);
+
+        if(validationResponse !== true){
+            return res.status(200).json({
+                status: 0,
+                message: "validation failed",
+                errors: validationResponse
+            });
+        }
+
+        models.CryptoAccount.findOne({where:{id:req.body.id}}).then(result =>{
+            if(result === null){
+                res.status(200).json({
+                    status: 0,
+                    message: "Not found"
+                });
+            }else{
+                models.CryptoAccount.destroy({
+                    where:{id:req.body.id}
+                }).then(result =>{
+                    if(result === 1)
+                    {
+                        res.status(200).json({
+                            status: 1,
+                            message: "Data removed",
+                            post: result
+                        });
+                    }
+                    else
+                    {
+                        res.status(200).json({
+                            status: 2,
+                            message: "Something went wrong!"
+                        });
+                    }
+                })
+            }
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong!",
+                error: error
+            });
+        });
+
+    }
+}
+
 module.exports = {
     index:index,
     login: login,
@@ -583,5 +735,9 @@ module.exports = {
     bank_accounts_list:bank_accounts_list,
     assign_bank_account:assign_bank_account,
     users_bank_accounts:users_bank_accounts,
-    remove_users_bank_account:remove_users_bank_account
+    remove_users_bank_account:remove_users_bank_account,
+    add_crypto_account:add_crypto_account,
+    uploadImg:uploadImg,
+    crypto_account_list:crypto_account_list,
+    delete_crypto_account:delete_crypto_account
 };
