@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
     websiteDomain: DataTypes.STRING,
     taxId: DataTypes.STRING,
     paymentTypes: DataTypes.STRING,
+    widgetCode: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Widget',
