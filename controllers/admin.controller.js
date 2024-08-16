@@ -736,6 +736,100 @@ function delete_crypto_account(req, res) {
     }
 }
 
+function payment_links(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        models.PaymentLink.findAll({
+            attributes: [
+               'id', ['id', 'linkId'], 'userId', 'paymentType', 'productName', 'productImage', 'price', 'currency', 'paymentCode', 'linkStatus', 'createdAt', 'updatedAt'
+            ],
+        }).then(result => {
+            res.status(200).json({
+                status: 1,
+                data: result
+            });
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong!",
+                error: error
+            });
+        });
+    }
+}
+
+function approve_payment_link(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        const post = {
+            linkId: req.body.linkId
+        }
+
+        const schema = {
+            linkId: {type: "string", optional: false, empty: false}
+        }
+
+        const v = new Validator();
+        const validationResponse = v.validate(post, schema);
+
+        if(validationResponse !== true){
+            return res.status(200).json({
+                status: 0,
+                message: "validation failed",
+                errors: validationResponse
+            });
+        }
+
+        models.PaymentLink.findOne({where:{id:req.body.linkId}}).then(result =>{
+            if(result === null){
+                res.status(200).json({
+                    status: 0,
+                    message: "Not found"
+                });
+            }else{
+
+                let linkId = req.body.linkId;
+                const data_update = {
+                    linkStatus: 'approved'
+                }   
+
+                models.PaymentLink.update(data_update, {where:{
+                    id:linkId
+                }}).then(result => {
+                    res.status(200).json({
+                        status: 1,
+                        message: "Link approved"
+                    });
+                }).catch(error => {
+                    res.status(200).json({
+                        status: 0,
+                        message: "Something went wrong!"
+                    });
+                });
+            }
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong!",
+                error: error
+            });
+        });
+
+    }
+}
+
 module.exports = {
     index:index,
     login: login,
@@ -752,5 +846,7 @@ module.exports = {
     add_crypto_account:add_crypto_account,
     uploadImg:uploadImg,
     crypto_account_list:crypto_account_list,
-    delete_crypto_account:delete_crypto_account
+    delete_crypto_account:delete_crypto_account,
+    payment_links:payment_links,
+    approve_payment_link:approve_payment_link
 };
