@@ -111,6 +111,7 @@ function add_payment_link(req, res) {
         let paymentCode = generateCode(10);
         post.userId = userId;
         post.paymentCode = paymentCode;
+        post.linkStatus = 'pending';
         
         models.PaymentLink.create(post).then(result => {
             res.status(200).json({
@@ -148,7 +149,7 @@ function all_payment_links(req, res) {
     {
         models.PaymentLink.findAll({
             attributes: [
-               'id', 'userId', 'paymentType', 'productName', 'productImage', 'price', 'currency', 'paymentCode'
+               'id', 'userId', 'paymentType', 'productName', 'productImage', 'price', 'currency', 'paymentCode', 'linkStatus'
             ],
         }).then(result => {
             res.status(200).json({
