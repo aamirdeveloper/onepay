@@ -705,11 +705,23 @@ function delete_crypto_account(req, res) {
                     message: "Not found"
                 });
             }else{
+                var img = result.QRImage;
+                var path = './uploads/'+img;
+
                 models.CryptoAccount.destroy({
                     where:{id:req.body.id}
                 }).then(result =>{
                     if(result === 1)
                     {
+                        if(img != '')
+                        {
+                            fs.unlink(path, (err) => {
+                                if (err) {
+                                    console.error(err);
+                                }
+                            });
+                        }
+                        
                         res.status(200).json({
                             status: 1,
                             message: "Data removed",
