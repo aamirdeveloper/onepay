@@ -15,6 +15,7 @@ router.get('/dashboard', userController.index);
 
 router.post('/add-payment-link', userController.uploadImg, userController.add_payment_link);
 router.get('/all-payment-links', userController.all_payment_links);
+router.post('/delete-payment-link', userController.delete_payment_link);
 
 router.post('/add-widget', userController.add_widget);
 
