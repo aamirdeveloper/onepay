@@ -22,6 +22,7 @@ module.exports = (sequelize, DataTypes) => {
     currency: DataTypes.STRING,
     paymentCode: DataTypes.STRING,
     linkStatus: DataTypes.STRING,
+    fees: DataTypes.DOUBLE,
   }, {
     sequelize,
     modelName: 'PaymentLink',
