@@ -87,6 +87,7 @@ function add_payment_link(req, res) {
             productImage: imageUrl,
             price: req.body.price,
             currency: req.body.currency,
+            fees: req.body.fees,
         }
 
         const schema = {
@@ -94,7 +95,8 @@ function add_payment_link(req, res) {
             productName: {type: "string", optional: false, empty: false},
             // productImage: {type: "string", optional: false, empty: false},
             price: {type: "string", optional: false, empty: false},
-            currency: {type: "string", optional: false, empty: false}
+            currency: {type: "string", optional: false, empty: false},
+            fees: {type: "string", optional: false, empty: false}
         }
 
         const v = new Validator();
@@ -149,7 +151,7 @@ function all_payment_links(req, res) {
     {
         models.PaymentLink.findAll({
             attributes: [
-               'id', 'userId', 'paymentType', 'productName', 'productImage', 'price', 'currency', 'paymentCode', 'linkStatus'
+               'id', 'userId', 'paymentType', 'productName', 'productImage', 'price', 'currency', 'paymentCode', 'linkStatus', 'fees'
             ],
         }).then(result => {
             res.status(200).json({
@@ -163,6 +165,84 @@ function all_payment_links(req, res) {
                 error: error
             });
         });
+    }
+}
+
+function delete_payment_link(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        const post = {
+            id: req.body.id
+        }
+
+        const schema = {
+            id: {type: "string", optional: false, empty: false}
+        }
+
+        const v = new Validator();
+        const validationResponse = v.validate(post, schema);
+
+        if(validationResponse !== true){
+            return res.status(200).json({
+                status: 0,
+                message: "validation failed",
+                errors: validationResponse
+            });
+        }
+
+        models.PaymentLink.findOne({where:{id:req.body.id}}).then(result =>{
+            if(result === null){
+                res.status(200).json({
+                    status: 0,
+                    message: "Not found"
+                });
+            }else{
+                var img = result.productImage;
+                var path = './uploads/'+img;
+
+                models.PaymentLink.destroy({
+                    where:{id:req.body.id}
+                }).then(result =>{
+                    if(result === 1)
+                    {
+                        if(img != '')
+                        {
+                            fs.unlink(path, (err) => {
+                                if (err) {
+                                    console.error(err);
+                                }
+                            });
+                        }
+
+                        res.status(200).json({
+                            status: 1,
+                            message: "Data removed",
+                            post: result
+                        });
+                    }
+                    else
+                    {
+                        res.status(200).json({
+                            status: 2,
+                            message: "Something went wrong!"
+                        });
+                    }
+                })
+            }
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong!",
+                error: error
+            });
+        });
+
     }
 }
 
@@ -240,5 +320,6 @@ module.exports = {
     add_payment_link:add_payment_link,
     uploadImg:uploadImg,
     all_payment_links:all_payment_links,
+    delete_payment_link:delete_payment_link,
     add_widget:add_widget
 };
