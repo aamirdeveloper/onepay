@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
   UsersBank.init({
     userId: DataTypes.INTEGER,
     bankAccountId: DataTypes.INTEGER,
+    fees: DataTypes.DOUBLE
   }, {
     sequelize,
     modelName: 'UsersBank',
