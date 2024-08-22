@@ -750,6 +750,113 @@ function delete_crypto_account(req, res) {
     }
 }
 
+function assign_crypto_account(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        const post = {
+            userId: req.body.userId,
+            cryptoAccountId: req.body.cryptoAccountId,
+            fees: req.body.fees,
+        }
+
+        const schema = {
+            userId: {type: "string", optional: false, empty: false},
+            cryptoAccountId: {type: "string", optional: false, empty: false},
+            fees: {type: "string", optional: false, empty: false}
+        }
+
+        const v = new Validator();
+        const validationResponse = v.validate(post, schema);
+
+        if(validationResponse !== true){
+            return res.status(200).json({
+                status: 0,
+                message: "validation failed",
+                errors: validationResponse
+            });
+        }
+
+        models.usersCryptoAccount.findOne({
+            where:{userId:req.body.userId, cryptoAccountId:req.body.cryptoAccountId}
+        }).then(result =>{
+            if(result === null){
+                models.usersCryptoAccount.create(post).then(result => {
+
+                    res.status(200).json({
+                        status: 1,
+                        message: "Data saved",
+                        post: result
+                    });
+                }).catch(error => {
+                    res.status(200).json({
+                        status: 2,
+                        message: "Something went wrong",
+                        error: error
+                    });
+                });
+            }
+            else
+            {
+                res.status(200).json({
+                    status: 3,
+                    message: "Already added"
+                });
+            }
+        })
+    }
+}
+
+function users_crypto_accounts(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        const post = {
+            userId: req.body.userId
+        }
+
+        const schema = {
+            userId: {type: "string", optional: false, empty: false}
+        }
+
+        const v = new Validator();
+        const validationResponse = v.validate(post, schema);
+
+        if(validationResponse !== true){
+            return res.status(200).json({
+                status: 0,
+                message: "validation failed",
+                errors: validationResponse
+            });
+        }
+
+        let userId = post.userId;
+
+        models.usersCryptoAccount.findAll().then(result => {
+            res.status(200).json({
+                status: 1,
+                data: result
+            });
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong!",
+                error: error
+            });
+        });
+    }
+}
+
 function payment_links(req, res) {
     let resp = helper.check_token(req);
     if(resp !== "Successfully Verified")
@@ -862,5 +969,7 @@ module.exports = {
     crypto_account_list:crypto_account_list,
     delete_crypto_account:delete_crypto_account,
     payment_links:payment_links,
-    approve_payment_link:approve_payment_link
+    approve_payment_link:approve_payment_link,
+    assign_crypto_account:assign_crypto_account,
+    users_crypto_accounts:users_crypto_accounts
 };
