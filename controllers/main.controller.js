@@ -85,36 +85,56 @@ function payment_link_details(req, res) {
                         userId: userId
                     },
                 }).then(result1 => {
-
-                    models.BankAccount.findOne({
-                        where: {
-                            id: result1.bankAccountId
-                        },
-                    }).then(result2 => {
-                        
-                        var arr = {
-                            status: 1, 
-                            "message": "login successfull",
-                            "paymentType": result.paymentType,
-                            "productName": result.productName,
-                            "productImage": result.productImage,
-                            "price": result.price,
-                            "currency": result.currency,
-                            "paymentCode": result.paymentCode,
-                            "linkStatus": result.linkStatus,
-                            "bankName": result2.bankName,
-                            "bankAccountNumber": result2.bankAccountNumber,
-                            "bankAccountName": result2.bankAccountName,
-                        };
-
-                        res.status(200).json(arr);
-                    }).catch(error => {
+                    if(result1 === null)
+                    {
                         res.status(200).json({
-                            status: 2,
-                            message: "Something went wrong!",
-                            error: error
+                            status: 3,
+                            message: "Record not found"
                         });
-                    });
+                    }
+                    else
+                    {
+                        let fees = result1.fees;
+                        models.BankAccount.findOne({
+                            where: {
+                                id: result1.bankAccountId
+                            },
+                        }).then(result2 => {
+                            if(result2 === null)
+                            {
+                                res.status(200).json({
+                                    status: 3,
+                                    message: "Record not found"
+                                });
+                            }
+                            else
+                            {
+                                var arr = {
+                                    status: 1, 
+                                    "message": "success",
+                                    "paymentType": result.paymentType,
+                                    "productName": result.productName,
+                                    "productImage": result.productImage,
+                                    "price": result.price,
+                                    "currency": result.currency,
+                                    "paymentCode": result.paymentCode,
+                                    "linkStatus": result.linkStatus,
+                                    "bankName": result2.bankName,
+                                    "bankAccountNumber": result2.bankAccountNumber,
+                                    "bankAccountName": result2.bankAccountName,
+                                    "fees": fees,
+                                };
+
+                                res.status(200).json(arr);
+                            }
+                        }).catch(error => {
+                            res.status(200).json({
+                                status: 2,
+                                message: "Something went wrong!",
+                                error: error
+                            });
+                        });
+                    }
                     
                 }).catch(error => {
                     res.status(200).json({
@@ -131,23 +151,31 @@ function payment_link_details(req, res) {
                         currency: currency
                     },
                 }).then(result1 => {
-                    
-                    var arr = {
-                        status: 1, 
-                        "message": "login successfull",
-                        "paymentType": result.paymentType,
-                        "productName": result.productName,
-                        "productImage": result.productImage,
-                        "price": result.price,
-                        "currency": result.currency,
-                        "paymentCode": result.paymentCode,
-                        "linkStatus": result.linkStatus,
-                        "walletAddress": result1.walletAddress,
-                        "network": result1.network,
-                        "QRImage": result1.QRImage,
-                    };
-
-                    res.status(200).json(arr);
+                    if(result1 === null)
+                    {
+                        res.status(200).json({
+                            status: 3,
+                            message: "Record not found"
+                        });
+                    }
+                    else
+                    {
+                        var arr = {
+                            status: 1, 
+                            "message": "success",
+                            "paymentType": result.paymentType,
+                            "productName": result.productName,
+                            "productImage": result.productImage,
+                            "price": result.price,
+                            "currency": result.currency,
+                            "paymentCode": result.paymentCode,
+                            "linkStatus": result.linkStatus,
+                            "walletAddress": result1.walletAddress,
+                            "network": result1.network,
+                            "QRImage": result1.QRImage,
+                        };
+                        res.status(200).json(arr);
+                    }
                 }).catch(error => {
                     res.status(200).json({
                         status: 2,
