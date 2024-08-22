@@ -87,7 +87,7 @@ function add_payment_link(req, res) {
             productImage: imageUrl,
             price: req.body.price,
             currency: req.body.currency,
-            fees: req.body.fees,
+            // fees: req.body.fees,
         }
 
         const schema = {
@@ -96,7 +96,7 @@ function add_payment_link(req, res) {
             // productImage: {type: "string", optional: false, empty: false},
             price: {type: "string", optional: false, empty: false},
             currency: {type: "string", optional: false, empty: false},
-            fees: {type: "string", optional: false, empty: false}
+            // fees: {type: "string", optional: false, empty: false}
         }
 
         const v = new Validator();
@@ -151,7 +151,7 @@ function all_payment_links(req, res) {
     {
         models.PaymentLink.findAll({
             attributes: [
-               'id', 'userId', 'paymentType', 'productName', 'productImage', 'price', 'currency', 'paymentCode', 'linkStatus', 'fees'
+               'id', 'userId', 'paymentType', 'productName', 'productImage', 'price', 'currency', 'paymentCode', 'linkStatus'
             ],
         }).then(result => {
             res.status(200).json({
