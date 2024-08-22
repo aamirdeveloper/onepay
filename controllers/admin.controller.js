@@ -438,12 +438,14 @@ function assign_bank_account(req, res) {
     {
         const post = {
             userId: req.body.userId,
-            bankAccountId: req.body.bankAccountId
+            bankAccountId: req.body.bankAccountId,
+            fees: req.body.fees,
         }
 
         const schema = {
             userId: {type: "string", optional: false, empty: false},
             bankAccountId: {type: "string", optional: false, empty: false},
+            fees: {type: "string", optional: false, empty: false}
         }
 
         const v = new Validator();
