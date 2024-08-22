@@ -25,6 +25,9 @@ router.post('/add-crypto-account', adminController.uploadImg, adminController.ad
 router.get('/crypto-account-list', adminController.crypto_account_list);
 router.post('/delete-crypto-account', adminController.delete_crypto_account);
 
+router.post('/assign-crypto-account', adminController.assign_crypto_account)
+router.post('/users-crypto-accounts', adminController.users_crypto_accounts)
+
 router.get('/payment-links', adminController.payment_links);
 router.post('/approve-payment-link', adminController.approve_payment_link);
 
