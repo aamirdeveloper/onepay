@@ -146,7 +146,7 @@ function payment_link_details(req, res) {
             }
             else if(paymentType == "Crypto")
             {
-                models.CryptoAccount.findOne({
+                models.CryptoAccount.findAll({
                     where: {
                         currency: currency
                     },
@@ -160,21 +160,79 @@ function payment_link_details(req, res) {
                     }
                     else
                     {
-                        var arr = {
-                            status: 1, 
-                            "message": "success",
-                            "paymentType": result.paymentType,
-                            "productName": result.productName,
-                            "productImage": result.productImage,
-                            "price": result.price,
-                            "currency": result.currency,
-                            "paymentCode": result.paymentCode,
-                            "linkStatus": result.linkStatus,
-                            "walletAddress": result1.walletAddress,
-                            "network": result1.network,
-                            "QRImage": result1.QRImage,
-                        };
-                        res.status(200).json(arr);
+                        let arr = [];   
+                        for (var i = 0; i < result1.length; i++) 
+                        {
+                            // console.log(result1[i]);
+                            arr.push(result1[i].id);
+                        }
+
+                        models.usersCryptoAccount.findAll({
+                            where: {
+                                userId: userId,
+                                cryptoAccountId: arr
+                            },
+                        }).then(result2 => {
+                            if(result2 === null)
+                            {
+                                res.status(200).json({
+                                    status: 3,
+                                    message: "Record not found"
+                                });
+                            }
+                            else
+                            {
+                                let selected = 0;
+                                let fees = 0;
+                                for (var i = 0; i < result2.length; i++) 
+                                {
+                                    selected = result2[i].cryptoAccountId;
+                                    fees = result2[i].fees;
+                                }
+                                if(selected != 0)
+                                {
+                                    models.CryptoAccount.findAll({
+                                        where: {
+                                            id: selected
+                                        },
+                                    }).then(result3 => {
+                                        if(result3 === null)
+                                        {
+                                            res.status(200).json({
+                                                status: 3,
+                                                message: "Record not found"
+                                            });
+                                        }
+                                        else
+                                        {
+                                            var arr = {
+                                                status: 1, 
+                                                "message": "success",
+                                                "paymentType": result.paymentType,
+                                                "productName": result.productName,
+                                                "productImage": result.productImage,
+                                                "price": result.price,
+                                                "currency": result.currency,
+                                                "paymentCode": result.paymentCode,
+                                                "linkStatus": result.linkStatus,
+                                                "walletAddress": result3.walletAddress,
+                                                "network": result3.network,
+                                                "QRImage": result3.QRImage,
+                                                "fees": fees,
+                                            };
+                                            res.status(200).json(arr);
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    res.status(200).json({
+                                        status: 3,
+                                        message: "Record not found"
+                                    });
+                                }
+                            }
+                        });
                     }
                 }).catch(error => {
                     res.status(200).json({
