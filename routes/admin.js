@@ -27,8 +27,13 @@ router.post('/delete-crypto-account', adminController.delete_crypto_account);
 
 router.post('/assign-crypto-account', adminController.assign_crypto_account)
 router.post('/users-crypto-accounts', adminController.users_crypto_accounts)
+router.post('/remove-users-crypto-account', adminController.remove_users_crypto_account)
 
 router.get('/payment-links', adminController.payment_links);
 router.post('/approve-payment-link', adminController.approve_payment_link);
+
+router.post('/add-p2p-exchange', adminController.add_p2p_exchange);
+router.get('/p2p-exchange-list', adminController.p2p_exchange_list);
+router.post('/delete-p2p-exchange', adminController.delete_p2p_exchange);
 
 module.exports= router;
