@@ -857,6 +857,58 @@ function users_crypto_accounts(req, res) {
     }
 }
 
+function remove_users_crypto_account(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        const post = {
+            userId: req.body.userId,
+            cryptoAccountId: req.body.cryptoAccountId
+        }
+
+        const schema = {
+            userId: {type: "string", optional: false, empty: false},
+            cryptoAccountId: {type: "string", optional: false, empty: false}
+        }
+
+        const v = new Validator();
+        const validationResponse = v.validate(post, schema);
+
+        if(validationResponse !== true){
+            return res.status(200).json({
+                status: 0,
+                message: "validation failed",
+                errors: validationResponse
+            });
+        }
+
+        models.usersCryptoAccount.destroy({
+            where:{userId:req.body.userId, cryptoAccountId:req.body.cryptoAccountId}
+        }).then(result =>{
+            if(result === 1)
+            {
+                res.status(200).json({
+                    status: 1,
+                    message: "Data removed",
+                    post: result
+                });
+            }
+            else
+            {
+                res.status(200).json({
+                    status: 2,
+                    message: "Something went wrong!"
+                });
+            }
+        })
+    }
+}
+
 function payment_links(req, res) {
     let resp = helper.check_token(req);
     if(resp !== "Successfully Verified")
@@ -951,6 +1003,148 @@ function approve_payment_link(req, res) {
     }
 }
 
+function add_p2p_exchange(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        const post = {
+            advertiser: req.body.advertiser,
+            price: req.body.price,
+            currencyFrom: req.body.currencyFrom,
+            currencyTo: req.body.currencyTo,
+            paymentMethod: req.body.paymentMethod,
+        }
+
+        const schema = {
+            advertiser: {type: "string", optional: false, empty: false},
+            price: {type: "string", optional: false, empty: false},
+            currencyFrom: {type: "string", optional: false, empty: false},
+            currencyTo: {type: "string", optional: false, empty: false},
+            paymentMethod: {type: "string", optional: false, empty: false}
+        }
+
+        const v = new Validator();
+        const validationResponse = v.validate(post, schema);
+
+        if(validationResponse !== true){
+            return res.status(200).json({
+                status: 0,
+                message: "validation failed",
+                errors: validationResponse
+            });
+        }
+
+        models.P2PExchange.create(post).then(result => {
+            res.status(200).json({
+                status: 1,
+                message: "added successfully",
+                post: result
+            });
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong save",
+                error: error
+            });
+        });
+    }
+}
+
+function p2p_exchange_list(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        models.P2PExchange.findAll().then(result => {
+            res.status(200).json({
+                status: 1,
+                data: result
+            });
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong!",
+                error: error
+            });
+        });
+    }
+}
+
+function delete_p2p_exchange(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        const post = {
+            id: req.body.id
+        }
+
+        const schema = {
+            id: {type: "string", optional: false, empty: false}
+        }
+
+        const v = new Validator();
+        const validationResponse = v.validate(post, schema);
+
+        if(validationResponse !== true){
+            return res.status(200).json({
+                status: 0,
+                message: "validation failed",
+                errors: validationResponse
+            });
+        }
+
+        models.P2PExchange.findOne({where:{id:req.body.id}}).then(result =>{
+            if(result === null){
+                res.status(200).json({
+                    status: 0,
+                    message: "Not found"
+                });
+            }else{
+                models.P2PExchange.destroy({
+                    where:{id:req.body.id}
+                }).then(result =>{
+                    if(result === 1)
+                    {
+                        res.status(200).json({
+                            status: 1,
+                            message: "Data removed",
+                            post: result
+                        });
+                    }
+                    else
+                    {
+                        res.status(200).json({
+                            status: 2,
+                            message: "Something went wrong!"
+                        });
+                    }
+                })
+            }
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong!",
+                error: error
+            });
+        });
+
+    }
+}
+
 module.exports = {
     index:index,
     login: login,
@@ -971,5 +1165,9 @@ module.exports = {
     payment_links:payment_links,
     approve_payment_link:approve_payment_link,
     assign_crypto_account:assign_crypto_account,
-    users_crypto_accounts:users_crypto_accounts
+    users_crypto_accounts:users_crypto_accounts,
+    remove_users_crypto_account:remove_users_crypto_account,
+    add_p2p_exchange:add_p2p_exchange,
+    p2p_exchange_list:p2p_exchange_list,
+    delete_p2p_exchange:delete_p2p_exchange
 };
