@@ -16,6 +16,8 @@ router.get('/contact-requests', adminController.contact_requests)
 
 router.post('/add-bank-account', adminController.add_bank_account)
 router.get('/bank-accounts-list', adminController.bank_accounts_list)
+router.post('/update-bank-account', adminController.update_bank_account)
+router.post('/delete-bank-account', adminController.delete_bank_account)
 
 router.post('/assign-bank-account', adminController.assign_bank_account)
 router.post('/users-bank-accounts', adminController.users_bank_accounts)
@@ -35,5 +37,13 @@ router.post('/approve-payment-link', adminController.approve_payment_link);
 router.post('/add-p2p-exchange', adminController.add_p2p_exchange);
 router.get('/p2p-exchange-list', adminController.p2p_exchange_list);
 router.post('/delete-p2p-exchange', adminController.delete_p2p_exchange);
+
+router.post('/assign-fees', adminController.assign_fees);
+router.post('/users-fees', adminController.users_fees);
+
+router.get('/payment-link-transactions', adminController.payment_link_transactions);
+router.post('/update-link-transaction-status', adminController.update_link_transaction_status)
+
+router.get('/completed-transaction', adminController.completed_transaction);
 
 module.exports= router;
