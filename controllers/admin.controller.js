@@ -427,6 +427,113 @@ function bank_accounts_list(req, res) {
     }
 }
 
+function update_bank_account(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        const post = {
+            id: req.body.id,
+            bankName: req.body.bankName,
+            bankAccountNumber: req.body.bankAccountNumber,
+            bankAccountName: req.body.bankAccountName
+        }
+
+        const schema = {
+            id: {type: "string", optional: false, empty: false},
+            bankName: {type: "string", optional: false, empty: false},
+            bankAccountNumber: {type: "string", optional: false, empty: false},
+            bankAccountName: {type: "string", optional: false, empty: false}
+        }
+
+        const v = new Validator();
+        const validationResponse = v.validate(post, schema);
+
+        if(validationResponse !== true){
+            return res.status(200).json({
+                status: 0,
+                message: "validation failed",
+                errors: validationResponse
+            });
+        }
+
+        models.BankAccount.update(post, {where:{
+            id:req.body.id
+        }}).then(result => {
+            res.status(200).json({
+                status: 1,
+                message: "Data updated",
+                post: result
+            });
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong",
+                error: error
+            });
+        });
+    }
+}
+
+function delete_bank_account(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        const post = {
+            id: req.body.id
+        }
+
+        const schema = {
+            id: {type: "string", optional: false, empty: false}
+        }
+
+        const v = new Validator();
+        const validationResponse = v.validate(post, schema);
+
+        if(validationResponse !== true){
+            return res.status(200).json({
+                status: 0,
+                message: "validation failed",
+                errors: validationResponse
+            });
+        }
+
+        models.BankAccount.destroy({
+            where:{id:req.body.id}
+        }).then(result => {
+            if(result === 1)
+            {
+                res.status(200).json({
+                    status: 1,
+                    message: "Data deleted",
+                });
+            }
+            else
+            {
+                res.status(200).json({
+                    status: 0,
+                    message: "Not found",
+                });
+            }
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong",
+                error: error
+            });
+        });
+    }
+}
+
 function assign_bank_account(req, res) {
     let resp = helper.check_token(req);
     if(resp !== "Successfully Verified")
@@ -1145,6 +1252,252 @@ function delete_p2p_exchange(req, res) {
     }
 }
 
+function assign_fees(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        const post = {
+            userId: req.body.userId,
+            cryptoWithdrawFees: req.body.cryptoWithdrawFees,
+            cryptoDepositFees: req.body.cryptoDepositFees,
+            bankTransferWithdrawFees: req.body.bankTransferWithdrawFees,
+            bankTransferDepositFees: req.body.bankTransferDepositFees,
+        }
+
+        const schema = {
+            userId: {type: "string", optional: false, empty: false},
+            cryptoWithdrawFees: {type: "string", optional: false, empty: false},
+            cryptoDepositFees: {type: "string", optional: false, empty: false},
+            bankTransferWithdrawFees: {type: "string", optional: false, empty: false},
+            bankTransferDepositFees: {type: "string", optional: false, empty: false}
+        }
+
+        const v = new Validator();
+        const validationResponse = v.validate(post, schema);
+
+        if(validationResponse !== true){
+            return res.status(200).json({
+                status: 0,
+                message: "validation failed",
+                errors: validationResponse
+            });
+        }
+
+        models.UsersFee.findOne({
+            where:{userId:req.body.userId}
+        }).then(result =>{
+            if(result === null){
+                models.UsersFee.create(post).then(result => {
+
+                    res.status(200).json({
+                        status: 1,
+                        message: "Data saved",
+                        post: result
+                    });
+                }).catch(error => {
+                    res.status(200).json({
+                        status: 2,
+                        message: "Something went wrong",
+                        error: error
+                    });
+                });
+            }
+            else
+            {
+                const data_update = {
+                    cryptoWithdrawFees: req.body.cryptoWithdrawFees,
+                    cryptoDepositFees: req.body.cryptoDepositFees,
+                    bankTransferWithdrawFees: req.body.bankTransferWithdrawFees,
+                    bankTransferDepositFees: req.body.bankTransferDepositFees,
+                };
+
+                models.UsersFee.update(data_update, {where:{
+                    userId:req.body.userId
+                }}).then(result => {
+                    res.status(200).json({
+                        status: 1,
+                        message: "Data updated"
+                    });
+                }).catch(error => {
+                    res.status(200).json({
+                        status: 0,
+                        message: "Something went wrong!"
+                    });
+                });
+            }
+        })
+    }
+}
+
+function users_fees(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        const post = {
+            userId: req.body.userId,
+        }
+
+        const schema = {
+            userId: {type: "string", optional: false, empty: false},
+        }
+
+        const v = new Validator();
+        const validationResponse = v.validate(post, schema);
+
+        if(validationResponse !== true){
+            return res.status(200).json({
+                status: 0,
+                message: "validation failed",
+                errors: validationResponse
+            });
+        }
+
+        models.UsersFee.findOne({
+            where:{userId:req.body.userId}
+        }).then(result =>{
+            res.status(200).json({
+                status: 1,
+                data: result
+            });
+        });
+    }
+}
+
+function payment_link_transactions(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        models.PaymentLinkTransaction.findAll().then(result => {
+            res.status(200).json({
+                status: 1,
+                data: result
+            });
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong!",
+                error: error
+            });
+        });
+    }
+}
+
+function update_link_transaction_status(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        const post = {
+            transactionId: req.body.transactionId
+        }
+
+        const schema = {
+            transactionId: {type: "string", optional: false, empty: false}
+        }
+
+        const v = new Validator();
+        const validationResponse = v.validate(post, schema);
+
+        if(validationResponse !== true){
+            return res.status(200).json({
+                status: 0,
+                message: "validation failed",
+                errors: validationResponse
+            });
+        }
+
+        let transactionId = req.body.transactionId;
+
+        models.PaymentLinkTransaction.findOne({where:{id:transactionId}}).then(result =>{
+            if(result === null){
+                res.status(200).json({
+                    status: 0,
+                    message: "Not found"
+                });
+            }else{
+                const update_post = {
+                    accepted: "yes"
+                };
+
+                models.PaymentLinkTransaction.update(update_post, {where:{
+                    id:req.body.transactionId
+                }}).then(result => {        
+                    res.status(200).json({
+                        status: 1,
+                        message: "Updated successfully",
+                        post: result,
+                    });
+                }).catch(error => {
+                    res.status(200).json({
+                        status: 2,
+                        message: "Something went wrong",
+                        error: error
+                    });
+                });
+            }
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong!",
+                error: error
+            });
+        });
+    }
+}
+
+function completed_transaction(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        models.PaymentLinkTransaction.findOne({where:{status:'completed'}}).then(result =>{
+            if(result === null){
+                res.status(200).json({
+                    status: 1,
+                    message: 'no',
+                    // total: 0
+                });
+            }else{
+                var n = result.length;
+                res.status(200).json({
+                    status: 1,
+                    message: "yes",
+                    // total: n,
+                });
+            }
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong!",
+                error: error
+            });
+        });
+    }
+}
+
 module.exports = {
     index:index,
     login: login,
@@ -1155,6 +1508,8 @@ module.exports = {
     contact_requests:contact_requests,
     add_bank_account:add_bank_account,
     bank_accounts_list:bank_accounts_list,
+    update_bank_account:update_bank_account,
+    delete_bank_account:delete_bank_account,
     assign_bank_account:assign_bank_account,
     users_bank_accounts:users_bank_accounts,
     remove_users_bank_account:remove_users_bank_account,
@@ -1169,5 +1524,10 @@ module.exports = {
     remove_users_crypto_account:remove_users_crypto_account,
     add_p2p_exchange:add_p2p_exchange,
     p2p_exchange_list:p2p_exchange_list,
-    delete_p2p_exchange:delete_p2p_exchange
+    delete_p2p_exchange:delete_p2p_exchange,
+    assign_fees:assign_fees,
+    users_fees:users_fees,
+    payment_link_transactions:payment_link_transactions,
+    update_link_transaction_status:update_link_transaction_status,
+    completed_transaction:completed_transaction
 };
