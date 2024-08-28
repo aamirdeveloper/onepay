@@ -1473,7 +1473,12 @@ function completed_transaction(req, res) {
     }
     else
     {
-        models.PaymentLinkTransaction.findOne({where:{status:'completed'}}).then(result =>{
+        models.PaymentLinkTransaction.findOne({
+            where:{
+                status:'completed',
+                accepted: 'no'
+            }
+        }).then(result =>{
             if(result === null){
                 res.status(200).json({
                     status: 1,
