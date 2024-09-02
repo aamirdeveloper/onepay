@@ -46,4 +46,7 @@ router.post('/update-link-transaction-status', adminController.update_link_trans
 
 router.get('/completed-transaction', adminController.completed_transaction);
 
+router.post('/get-users-deposits', adminController.get_users_deposits);
+router.post('/get-users-withdraws', adminController.get_users_withdraws);
+
 module.exports= router;
