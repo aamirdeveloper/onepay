@@ -1503,6 +1503,214 @@ function completed_transaction(req, res) {
     }
 }
 
+function get_users_deposits(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        const post = {
+            userId: req.body.userId
+        }
+
+        const schema = {
+            userId: {type: "string", optional: false, empty: false}
+        }
+
+        const v = new Validator();
+        const validationResponse = v.validate(post, schema);
+
+        if(validationResponse !== true){
+            return res.status(200).json({
+                status: 0,
+                message: "validation failed",
+                errors: validationResponse
+            });
+        }
+        
+        let userId = post.userId;
+        const all_deposits = [];
+        const arr1 = [];
+
+        models.PaymentLink.findAll({
+            where:{
+                userId:userId
+            }
+        }).then(result =>{
+            if(result === null)
+            {
+                res.status(200).json({
+                    status: 3,
+                    message: "Result not found",
+                });
+            }
+            else
+            {
+                for (var i = 0; i <= result.length -1; i++) {
+                    let pId = result[i].id;
+                    arr1.push(pId);
+                }
+
+                models.PaymentLinkTransaction.findAll({
+                    where:{
+                        paymentId:arr1, 
+                        accepted: "yes"
+                    }
+                }).then(result1 =>{
+                    if(result1 === null){
+                        res.status(200).json({
+                            status: 3,
+                            message: "Result not found",
+                        });
+                    }else{
+                        var all = [];
+                        var trIds = [];
+                        for (var j = 0; j < result1.length; j++)  {
+                            all.push(result1[j].paymentId);
+                            var a = result1[j].paymentId;
+                            var b = result1[j].id;
+                            var obj = {'paymentId': a, 'trnsId': b};
+                            trIds.push(obj);
+                        }
+                        
+                        models.PaymentLink.findAll({
+                            where:{
+                                id:all
+                            }
+                        }).then(result2 =>{
+                            if(result2 === null)
+                            {
+                                res.status(200).json({
+                                    status: 3,
+                                    message: "Result not found",
+                                });
+                            }
+                            else
+                            {
+                                /*let newArr = []; 
+                                for (var k = 0; k < result2.length; k++) {
+                                    // result2[k]
+                                    
+                                    let arr2 = {
+
+                                    }
+                                }*/
+                                console.log(trIds);
+                                res.status(200).json({
+                                    status: 1,
+                                    message: "success",
+                                    data: result2
+                                });
+                            }
+                        });
+                    }
+                }).catch(error => {
+                    res.status(200).json({
+                        status: 2,
+                        message: "Something went wrong!",
+                        error: error
+                    });
+                });
+            }
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong!",
+                error: error
+            });
+        });
+
+        /* for (var i = 0; i <= result.length -1; i++) {
+                let pId = result[i].id;
+                const arr = result;
+                models.PaymentLinkTransaction.findOne({
+                    where:{
+                        paymentId:pId, 
+                        accepted: "yes"
+                    }
+                }).then(result1 =>{
+                    if(result1 === null){
+                        //
+                    }else{
+                        all_deposits.push(arr);
+                        // console.log(all_deposits);
+                    }
+                }).catch(error => {
+                    // res.status(200).json({
+                    //     status: 2,
+                    //     message: "Something went wrong!",
+                    //     error: error
+                    // });
+                });
+
+                console.log(all_deposits);
+            }*/
+
+            /*res.status(200).json({
+                status: 1,
+                message: "success",
+                data: all_deposits
+            });*/
+
+        // console.log(all_deposits);
+    }
+}
+
+function get_users_withdraws(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        const post = {
+            userId: req.body.userId
+        }
+
+        const schema = {
+            userId: {type: "string", optional: false, empty: false}
+        }
+
+        const v = new Validator();
+        const validationResponse = v.validate(post, schema);
+
+        if(validationResponse !== true){
+            return res.status(200).json({
+                status: 0,
+                message: "validation failed",
+                errors: validationResponse
+            });
+        }
+        
+        let userId = post.userId;
+
+        models.WithdrawRequest.findAll({
+            where:{
+                userId:userId
+            }
+        }).then(result =>{
+            // console.log(result);
+            
+            res.status(200).json({
+                status: 1,
+                message: "success",
+                data: result
+            });
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong!",
+                error: error
+            });
+        });
+    }
+}
+
 module.exports = {
     index:index,
     login: login,
@@ -1534,5 +1742,7 @@ module.exports = {
     users_fees:users_fees,
     payment_link_transactions:payment_link_transactions,
     update_link_transaction_status:update_link_transaction_status,
-    completed_transaction:completed_transaction
+    completed_transaction:completed_transaction,
+    get_users_deposits:get_users_deposits,
+    get_users_withdraws:get_users_withdraws
 };
