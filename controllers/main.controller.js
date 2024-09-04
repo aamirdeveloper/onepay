@@ -2,7 +2,18 @@ const models = require("../models");
 const helper = require('../helper');
 const Validator = require('fastest-validator');
 require('dotenv').config();
+const fs = require('fs');
 
+const multer = require('multer');
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, './uploads');
+      },
+    filename: function (req, file, cb) {
+        cb(null, Date.now()+file.originalname);
+    }
+});
+const uploadImg = multer({storage: storage}).single('file');
 
 function save_contact(req, res){
     const post = {
@@ -493,6 +504,13 @@ function generateCode() {
 }
 
 function save_link_transaction(req, res) {
+
+    let paymentSlip = '';
+    if(req.hasOwnProperty('file'))
+    {
+        paymentSlip = req.file.filename;
+    }
+
     const post = {
         paymentCode : req.body.paymentCode,
         status: req.body.status
@@ -528,6 +546,7 @@ function save_link_transaction(req, res) {
             models.PaymentLinkTransaction.findOne({where:{paymentId:paymentId}}).then(result =>{
                 if(result === null){
                     post.paymentId = paymentId;
+                    post.paymentSlip = paymentSlip;
                     models.PaymentLinkTransaction.create(post).then(result => {        
                         res.status(200).json({
                             status: 1,
@@ -636,5 +655,6 @@ module.exports = {
     payment_link_details:payment_link_details,
     widget_details:widget_details,
     save_link_transaction:save_link_transaction,
+    uploadImg:uploadImg,
     link_transaction_status:link_transaction_status
 }

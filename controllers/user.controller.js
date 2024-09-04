@@ -355,11 +355,135 @@ function add_widget(req, res) {
     }
 }
 
+function transaction_deposits(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        let user = helper.get_userId_token(req);
+        let userId = user.userId;
+
+        models.PaymentLink.findAll({
+            where: {
+                userId:userId
+            }
+        }).then(result => {
+            /*res.status(200).json({
+                status: 1,
+                data: result
+            });*/
+            if(result === null)
+            {
+                res.status(200).json({
+                    status: 3,
+                    message: "No result"
+                });
+            }
+            else
+            {
+                let all = [];
+                for (var i = 0; i < result.length; i++) {
+                    let id = result[i].id;
+                    all.push(id);
+                }
+                console.log(all);
+
+                models.PaymentLinkTransaction.findAll({
+                    where: {
+                        paymentId: all,
+                        accepted: "yes"
+                    }
+                }).then(result1 => {
+                    res.status(200).json({
+                        status: 1,
+                        message: "success",
+                        data: result1
+                    });
+                }).catch(error => {
+                    res.status(200).json({
+                        status: 2,
+                        message: "Something went wrong save",
+                        error: error
+                    });
+                });
+            }
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong!",
+                error: error
+            });
+        });
+    }
+}
+
+function save_comment(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        let user = helper.get_userId_token(req);
+        let userId = user.userId;
+
+        const post1 = {
+            id: req.body.id,
+            comment: req.body.comment
+        }
+
+        const schema = {
+            id: {type: "string", optional: false, empty: false},
+            comment: {type: "string", optional: false}
+        }
+
+        const v = new Validator();
+        const validationResponse = v.validate(post1, schema);
+
+        if(validationResponse !== true){
+            return res.status(200).json({
+                status: 0,
+                message: "validation failed",
+                errors: validationResponse
+            });
+        }
+
+        let post = {
+            comments: req.body.comment
+        }
+        let id = req.body.id;
+        
+        models.PaymentLinkTransaction.update(post, {where:{
+            id:id
+        }}).then(result => {
+            res.status(200).json({
+                status: 1,
+                message: "added",
+                post: result
+            });
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong save",
+                error: error
+            });
+        });
+    }
+}
+
 module.exports = {
     index:index,
     add_payment_link:add_payment_link,
     uploadImg:uploadImg,
     all_payment_links:all_payment_links,
     delete_payment_link:delete_payment_link,
-    add_widget:add_widget
+    add_widget:add_widget,
+    transaction_deposits:transaction_deposits,
+    save_comment:save_comment
 };
