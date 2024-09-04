@@ -261,7 +261,7 @@ function all_users(req, res){
     {
         models.User.findAll({
             attributes: [
-               'id', 'firstName', 'lastName', 'email', 'referenceId', 'totalDeposit', 'totalWithdraw', 'balance', 'createdAt', 'updatedAt'
+               'id', 'firstName', 'lastName', 'email', 'referenceId', 'totalDeposit', 'totalWithdraw', 'balance', 'referralCode', 'createdAt', 'updatedAt'
             ],
         }).then(result => {
             res.status(200).json({
@@ -321,6 +321,111 @@ function users_transactions(req, res){
             res.status(200).json({
                 status: 2,
                 message: "Something went wrong!",
+                error: error
+            });
+        });
+    }
+}
+
+function add_referral_code(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        const post = {
+            userId: req.body.userId,
+            code: req.body.code,
+        }
+
+        const schema = {
+            userId: {type: "string", optional: false, empty: false},
+            code: {type: "string", optional: false, empty: false},
+        }
+
+        const v = new Validator();
+        const validationResponse = v.validate(post, schema);
+
+        if(validationResponse !== true){
+            return res.status(200).json({
+                status: 0,
+                message: "validation failed",
+                errors: validationResponse
+            });
+        }
+        
+        let userId = post.userId;
+        let code = post.code;
+
+        let update_data = {
+            referralCode: code
+        };
+
+        models.User.update(update_data, {where:{
+            id:userId
+        }}).then(result => {
+            res.status(200).json({
+                status: 1,
+                message: "Data updated",
+                post: result
+            });
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong",
+                error: error
+            });
+        });
+    }
+}
+
+function user_details(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        const post = {
+            userId: req.body.userId
+        }
+
+        const schema = {
+            userId: {type: "string", optional: false, empty: false}
+        }
+
+        const v = new Validator();
+        const validationResponse = v.validate(post, schema);
+
+        if(validationResponse !== true){
+            return res.status(200).json({
+                status: 0,
+                message: "validation failed",
+                errors: validationResponse
+            });
+        }
+        
+        let userId = post.userId;
+
+        models.User.findOne({
+            where:{
+                id:userId
+            }
+        }).then(result => {
+            res.status(200).json({
+                status: 1,
+                message: "success",
+                record: result
+            });
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong",
                 error: error
             });
         });
@@ -1718,6 +1823,8 @@ module.exports = {
     all_transactions:all_transactions,
     all_users:all_users,
     users_transactions:users_transactions,
+    add_referral_code:add_referral_code,
+    user_details:user_details,
     contact_requests:contact_requests,
     add_bank_account:add_bank_account,
     bank_accounts_list:bank_accounts_list,

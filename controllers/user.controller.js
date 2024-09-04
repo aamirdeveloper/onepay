@@ -71,6 +71,7 @@ function index(req, res){
                             "totalDeposit": user_data.totalDeposit,
                             "totalWithdraw": user_data.totalWithdraw,
                             "balance": user_data.balance,
+                            "referralCode": user_data.referralCode,
                             "totalTransaction": totalTransaction,
                             "bankDepositFess": bankDepositFess,
                             "cryptoDepositFess": cryptoDepositFess
