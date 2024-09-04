@@ -17,6 +17,8 @@ module.exports = (sequelize, DataTypes) => {
     paymentId: DataTypes.INTEGER,
     status: DataTypes.STRING,
     accepted: DataTypes.STRING,
+    paymentSlip: DataTypes.STRING,
+    comments: DataTypes.STRING,
   }, {
     sequelize,
     modelName: 'PaymentLinkTransaction',
