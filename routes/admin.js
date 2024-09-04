@@ -11,6 +11,8 @@ router.get('/dashboard', adminController.index)
 router.get('/all-transactions', adminController.all_transactions)
 router.get('/all-users', adminController.all_users)
 router.post('/users-transactions', adminController.users_transactions)
+router.post('/user-details', adminController.user_details)
+router.post('/add-referral-code', adminController.add_referral_code)
 
 router.get('/contact-requests', adminController.contact_requests)
 
