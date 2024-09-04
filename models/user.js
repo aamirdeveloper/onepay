@@ -24,6 +24,7 @@ module.exports = (sequelize, DataTypes) => {
     totalDeposit: DataTypes.DOUBLE,
     totalWithdraw: DataTypes.DOUBLE,
     balance: DataTypes.DOUBLE,
+    referralCode: DataTypes.STRING,
   }, {
     sequelize,
     modelName: 'User',
