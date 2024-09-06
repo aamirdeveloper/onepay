@@ -20,6 +20,9 @@ router.post('/delete-payment-link', userController.delete_payment_link);
 router.get('/transaction-deposits', userController.transaction_deposits);
 router.post('/save-comment', userController.save_comment);
 
+router.post('/save-withdraw-request', userController.save_withdraw_request);
+router.get('/transaction-withdraw', userController.transaction_withdraw);
+
 router.post('/add-widget', userController.add_widget);
 
 module.exports= router;
