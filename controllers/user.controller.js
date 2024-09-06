@@ -462,6 +462,7 @@ function save_withdraw_request(req, res) {
         let currency = "";
         let timePeriod = "";
         let network = "";
+        let walletAddress = "";
 
         if(!req.body.amount)
         {
@@ -504,6 +505,12 @@ function save_withdraw_request(req, res) {
         }
         else
             network = req.body.network;
+
+        if(!req.body.walletAddress)
+        {
+        }
+        else
+            walletAddress = req.body.walletAddress;
         
         let post = {
             userId:userId,
@@ -515,7 +522,8 @@ function save_withdraw_request(req, res) {
             bankAccountName: bankAccountName,
             currency: currency,
             timePeriod: timePeriod,
-            network: network
+            network: network,
+            walletAddress: walletAddress
         }
         
         models.WithdrawRequest.create(post).then(result => {
