@@ -422,6 +422,152 @@ function transaction_deposits(req, res) {
     }
 }
 
+function save_withdraw_request(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        let user = helper.get_userId_token(req);
+        let userId = user.userId;
+
+        const post1 = {
+            withdrawType: req.body.withdrawType,
+            withdrawMethod: req.body.withdrawMethod
+        }
+
+        const schema = {
+            withdrawType: {type: "string", optional: false, empty: false},
+            withdrawMethod: {type: "string", optional: false, empty: false}
+        }
+
+        const v = new Validator();
+        const validationResponse = v.validate(post1, schema);
+
+        if(validationResponse !== true){
+            return res.status(200).json({
+                status: 0,
+                message: "validation failed",
+                errors: validationResponse
+            });
+        }
+
+        let amount = 0;
+        let bankName = "";
+        let bankAccountNumber = "";
+        let bankAccountName = "";
+        let currency = "";
+        let timePeriod = "";
+        let network = "";
+
+        if(!req.body.amount)
+        {
+        }
+        else
+            amount = req.body.amount;
+
+        if(!req.body.bankName)
+        {
+        }
+        else
+            bankName = req.body.bankName;
+
+        if(!req.body.bankAccountNumber)
+        {
+        }
+        else
+            bankAccountNumber = req.body.bankAccountNumber;
+
+        if(!req.body.bankAccountName)
+        {
+        }
+        else
+            bankAccountName = req.body.bankAccountName;
+
+        if(!req.body.currency)
+        {
+        }
+        else
+            currency = req.body.currency;
+
+        if(!req.body.timePeriod)
+        {
+        }
+        else
+            timePeriod = req.body.timePeriod;
+
+        if(!req.body.network)
+        {
+        }
+        else
+            network = req.body.network;
+        
+        let post = {
+            userId:userId,
+            withdrawType: req.body.withdrawType,
+            withdrawMethod: req.body.withdrawMethod,
+            amount: amount,
+            bankName: bankName,
+            bankAccountNumber: bankAccountNumber,
+            bankAccountName: bankAccountName,
+            currency: currency,
+            timePeriod: timePeriod,
+            network: network
+        }
+        
+        models.WithdrawRequest.create(post).then(result => {
+            res.status(200).json({
+                status: 1,
+                message: "added successfully",
+                post: result
+            });
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong save",
+                error: error
+            });
+        });
+    }
+}
+
+function transaction_withdraw(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        let user = helper.get_userId_token(req);
+        let userId = user.userId;
+
+        models.WithdrawRequest.findAll({
+            where:{
+                userId:userId
+            }
+        }).then(result =>{
+            // console.log(result);
+            
+            res.status(200).json({
+                status: 1,
+                message: "success",
+                data: result
+            });
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong!",
+                error: error
+            });
+        });
+    }
+}
+
 function save_comment(req, res) {
     let resp = helper.check_token(req);
     if(resp !== "Successfully Verified")
@@ -486,5 +632,7 @@ module.exports = {
     delete_payment_link:delete_payment_link,
     add_widget:add_widget,
     transaction_deposits:transaction_deposits,
-    save_comment:save_comment
+    save_comment:save_comment,
+    save_withdraw_request:save_withdraw_request,
+    transaction_withdraw:transaction_withdraw
 };
