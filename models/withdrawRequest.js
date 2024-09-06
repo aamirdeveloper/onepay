@@ -23,7 +23,8 @@ module.exports = (sequelize, DataTypes) => {
     bankAccountName: DataTypes.STRING,
     currency: DataTypes.STRING,
     timePeriod: DataTypes.STRING,
-    network: DataTypes.STRING
+    network: DataTypes.STRING,
+    walletAddress: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'WithdrawRequest',
