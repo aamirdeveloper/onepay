@@ -1539,17 +1539,71 @@ function update_link_transaction_status(req, res) {
                     message: "Not found"
                 });
             }else{
+                let paymentId = result.paymentId;
+
                 const update_post = {
                     accepted: "yes"
                 };
 
                 models.PaymentLinkTransaction.update(update_post, {where:{
                     id:req.body.transactionId
-                }}).then(result => {        
-                    res.status(200).json({
-                        status: 1,
-                        message: "Updated successfully",
-                        post: result,
+                }}).then(result => {
+
+                    models.PaymentLink.findOne({
+                        where:{
+                            id:paymentId
+                        }
+                    }).then(result1 => { 
+
+                        let userId = result1.userId;
+                        let price = result1.price;
+
+                        models.User.findOne({
+                            where:{
+                                id:userId
+                            }
+                        }).then(result2 => { 
+
+                            let totalDeposit = result2.totalDeposit;
+                            let balance = result2.balance;
+
+                            totalDeposit = totalDeposit + price;
+                            balance = balance + price;
+
+                            let data1 = {
+                                totalDeposit:totalDeposit,
+                                balance:balance
+                            }
+
+                            models.User.update(data1, {where:{
+                                id:userId
+                            }}).then(result3 => {
+                                res.status(200).json({
+                                    status: 1,
+                                    message: "Updated successfully",
+                                    post: result,
+                                });
+                            }).catch(error => {
+                                res.status(200).json({
+                                    status: 2,
+                                    message: "Something went wrong save",
+                                    error: error
+                                });
+                            });
+                            
+                        }).catch(error => {
+                            res.status(200).json({
+                                status: 2,
+                                message: "Something went wrong",
+                                error: error
+                            });
+                        });
+                    }).catch(error => {
+                        res.status(200).json({
+                            status: 2,
+                            message: "Something went wrong",
+                            error: error
+                        });
                     });
                 }).catch(error => {
                     res.status(200).json({
