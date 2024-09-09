@@ -525,20 +525,121 @@ function save_withdraw_request(req, res) {
             network: network,
             walletAddress: walletAddress
         }
-        
-        models.WithdrawRequest.create(post).then(result => {
-            res.status(200).json({
-                status: 1,
-                message: "added successfully",
-                post: result
+
+        let f = "yes";
+        if(post.withdrawType == "Manual Withdraw")
+        {
+            if(post.amount > 0)
+            {
+                models.User.findOne({
+                    where:{
+                        id:userId
+                    }
+                }).then(result2 => { 
+                    let balance = result2.balance;
+                    if(balance < post.amount)
+                    {
+                        f = "no";
+
+                        res.status(200).json({
+                            status: 3,
+                            message: "Insufficient balance"
+                        });
+                    }
+                    else
+                    {
+                        models.WithdrawRequest.create(post).then(result => {
+
+                            models.User.findOne({
+                                where:{
+                                    id:userId
+                                }
+                            }).then(result2 => { 
+
+                                let totalWithdraw = result2.totalWithdraw;
+                                let balance = result2.balance;
+
+                                let amount = post.amount;
+
+                                totalWithdraw = totalWithdraw + amount;
+                                balance = balance - amount;
+
+                                let data1 = {
+                                    totalWithdraw:totalWithdraw,
+                                    balance:balance
+                                }
+
+                                models.User.update(data1, {where:{
+                                    id:userId
+                                }}).then(result3 => {
+                                    res.status(200).json({
+                                        status: 1,
+                                        message: "added successfully",
+                                        post: result
+                                    });
+                                }).catch(error => {
+                                    res.status(200).json({
+                                        status: 2,
+                                        message: "Something went wrong save",
+                                        error: error
+                                    });
+                                });
+                                
+                            }).catch(error => {
+                                res.status(200).json({
+                                    status: 2,
+                                    message: "Something went wrong",
+                                    error: error
+                                });
+                            });
+                            
+                        }).catch(error => {
+                            res.status(200).json({
+                                status: 2,
+                                message: "Something went wrong save",
+                                error: error
+                            });
+                        });
+                    }
+                }).catch(error => {
+                    res.status(200).json({
+                        status: 2,
+                        message: "Something went wrong",
+                        error: error
+                    });
+                });
+            }
+        } else {
+            models.WithdrawRequest.create(post).then(result => {
+
+                models.User.findOne({
+                    where:{
+                        id:userId
+                    }
+                }).then(result2 => { 
+
+                    res.status(200).json({
+                        status: 1,
+                        message: "added successfully",
+                        post: result
+                    });
+                    
+                }).catch(error => {
+                    res.status(200).json({
+                        status: 2,
+                        message: "Something went wrong",
+                        error: error
+                    });
+                });
+                
+            }).catch(error => {
+                res.status(200).json({
+                    status: 2,
+                    message: "Something went wrong save",
+                    error: error
+                });
             });
-        }).catch(error => {
-            res.status(200).json({
-                status: 2,
-                message: "Something went wrong save",
-                error: error
-            });
-        });
+        }
     }
 }
 
