@@ -11,4 +11,6 @@ router.post('/widget-details', mainController.widget_details)
 router.post('/save-link-transaction', mainController.uploadImg, mainController.save_link_transaction)
 router.post('/link-transaction-status', mainController.link_transaction_status)
 
+router.post('/save-withdraw-request', mainController.save_withdraw_request);
+
 module.exports= router;
