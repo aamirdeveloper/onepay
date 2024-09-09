@@ -75,8 +75,38 @@ function get_adminId_token(req) {
     }
 }
 
+function check_key(req) {
+    
+    require('dotenv').config();
+    
+    let secretKey = process.env.SECRET_KEY;
+  
+    try {
+        const token = req.header('Authorization');
+        
+        if(token === secretKey){
+            return "Successfully Verified";
+        }else{
+            // Access Denied
+            let error = {
+               status: 0,
+               message: "Incorrect Key"
+            }
+            return error;
+        }
+    } catch (error) {
+        // Access Denied
+        error = {
+           status: 0,
+           message: "Key Required"
+        }
+        return error;
+    }
+}
+
 module.exports = {
   check_token,
   get_userId_token,
-  get_adminId_token
+  get_adminId_token,
+  check_key
 }
