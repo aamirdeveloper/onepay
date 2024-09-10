@@ -8,6 +8,9 @@ router.post('/change-password', adminController.change_password)
 
 router.get('/dashboard', adminController.index)
 
+router.post('/update-pin', adminController.update_pin)
+router.post('/check-pin', adminController.check_pin)
+
 router.get('/all-transactions', adminController.all_transactions)
 router.get('/all-users', adminController.all_users)
 router.post('/users-transactions', adminController.users_transactions)
