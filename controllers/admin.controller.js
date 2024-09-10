@@ -126,6 +126,7 @@ function login(req, res){
                         "adminId": result.id,
                         "email": result.email,
                         "name": result.name,
+                        "type": result.type,
                         "token": token
                     };
 
@@ -216,6 +217,172 @@ function change_password(req, res) {
                         });
                     }
                 });
+            }
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong"
+            });
+        });
+    }
+}
+
+function update_pin(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        const post = {
+            pin: req.body.pin
+        }
+
+        const schema = {
+            pin: {type: "string", optional: false}
+        }
+
+        const v = new Validator();
+        const validationResponse = v.validate(post, schema);
+
+        if(validationResponse !== true){
+            return res.status(200).json({
+                status: 0,
+                message: "validation failed",
+                errors: validationResponse
+            });
+        }
+
+        let login_data = helper.get_adminId_token(req);
+        const adminId = login_data.adminId;
+
+        models.Admin.findOne({where:{id:adminId}}).then(result =>{
+            if(result === null){
+                res.status(200).json({
+                    status: 0,
+                    message: "Invalid token"
+                });
+            }else{
+                const dt = {
+                    adminPIN: post.pin
+                }
+            
+                models.Admin.update(dt, {where:{
+                    id:adminId
+                }}).then(result => {
+                    res.status(200).json({
+                        status: 1,
+                        message: "PIN updated"
+                    });
+                }).catch(error => {
+                    res.status(200).json({
+                        status: 0,
+                        message: "Something went wrong!"
+                    });
+                });
+            }
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong"
+            });
+        });
+    }
+}
+
+function check_pin(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        const post = {
+            pin1: req.body.pin1,
+            pin2: req.body.pin2,
+            pin3: req.body.pin3,
+        }
+
+        const schema = {
+            pin1: {type: "string", optional: false},
+            pin2: {type: "string", optional: false},
+            pin3: {type: "string", optional: false},
+        }
+
+        const v = new Validator();
+        const validationResponse = v.validate(post, schema);
+
+        if(validationResponse !== true){
+            return res.status(200).json({
+                status: 0,
+                message: "validation failed",
+                errors: validationResponse
+            });
+        }
+
+        let login_data = helper.get_adminId_token(req);
+        const adminId = login_data.adminId;
+
+        let subadmins = [2, 3, 4];
+
+        let pin1 = req.body.pin1;
+        let pin2 = req.body.pin2;
+        let pin3 = req.body.pin3;
+
+        models.Admin.findAll({
+            where:{
+                id:subadmins
+            }
+        }).then(result =>{
+            if(result === null){
+                res.status(200).json({
+                    status: 0,
+                    message: "Invalid token"
+                });
+            }else{
+                let flag = "yes";
+                for (var i = 0; i < result.length; i++) {
+                    if(i == 0)
+                    {
+                        if(result[i].adminPIN !== pin1)
+                        {
+                            flag = "no";
+                        }
+                    }
+                    if(i == 1)
+                    {
+                        if(result[i].adminPIN !== pin2)
+                        {
+                            flag = "no";
+                        }
+                    }
+                    if(i == 2)
+                    {
+                        if(result[i].adminPIN !== pin3)
+                        {
+                            flag = "no";
+                        }
+                    }
+                }
+
+                if(flag == "yes")
+                {
+                    res.status(200).json({
+                        status: 1,
+                        message: "correct"
+                    });
+                }
+                else
+                {
+                    res.status(200).json({
+                        status: 3,
+                        message: "incorrect"
+                    });
+                }
             }
         }).catch(error => {
             res.status(200).json({
@@ -1874,6 +2041,8 @@ module.exports = {
     index:index,
     login: login,
     change_password: change_password,
+    update_pin:update_pin,
+    check_pin:check_pin,
     all_transactions:all_transactions,
     all_users:all_users,
     users_transactions:users_transactions,
