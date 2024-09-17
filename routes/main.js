@@ -12,5 +12,6 @@ router.post('/save-link-transaction', mainController.uploadImg, mainController.s
 router.post('/link-transaction-status', mainController.link_transaction_status)
 
 router.post('/save-withdraw-request', mainController.save_withdraw_request);
+router.post('/withdraw-status-api', mainController.withdraw_status_api);
 
 module.exports= router;
