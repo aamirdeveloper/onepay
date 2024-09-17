@@ -290,6 +290,15 @@ function widget_details(req, res) {
         });
     }
 
+    const d = get_widget_details(req, res);
+    res.status(200).json({
+        status: 1,
+        data: d
+    });
+}
+
+const get_widget_details = async function(req, res) {
+    
     let code = req.body.code;
     
     models.Widget.findOne({where:{widgetCode:code}}).then(result =>{
@@ -309,104 +318,36 @@ function widget_details(req, res) {
                 let v = arr[i];
                 if(v == "BTC" || v == "USDT")
                 {
-                    models.CryptoAccount.findAll({
-                        where: {
-                            currency: v
-                        },
-                    }).then(result1 => {
-                        if(result1 === null)
+                    const result1 = crypto_details(v);
+                    console.log(result1);
+                    if(result1 !== null)
+                    {
+                        // let arr = [];   
+                        for (var i = 0; i < result1.length; i++) 
                         {
-                            /*res.status(200).json({
-                                status: 3,
-                                message: "Record not found"
-                            });*/
-                        }
-                        else
-                        {
-                            let arr = [];   
-                            for (var i = 0; i < result1.length; i++) 
-                            {
-                                // console.log(result1[i]);
-                                arr.push(result1[i].id);
-                            }
+                            // console.log(result1[i]);
+                            // arr.push(result1[i].id);
+                            let crypId = result1[i].id;
 
-                            models.usersCryptoAccount.findAll({
-                                where: {
-                                    userId: userId,
-                                    cryptoAccountId: arr
-                                },
-                            }).then(result2 => {
-                                if(result2 === null)
-                                {
-                                    /*res.status(200).json({
-                                        status: 3,
-                                        message: "Record not found"
-                                    });*/
-                                }
-                                else
-                                {
-                                    let selected = 0;
-                                    let fees = 0;
-                                    for (var i = 0; i < result2.length; i++) 
-                                    {
-                                        selected = result2[i].cryptoAccountId;
-                                        fees = result2[i].fees;
-                                    }
-                                    if(selected != 0)
-                                    {
-                                        models.CryptoAccount.findAll({
-                                            where: {
-                                                id: selected
-                                            },
-                                        }).then(result3 => {
-                                            if(result3 === null)
-                                            {
-                                                /*res.status(200).json({
-                                                    status: 3,
-                                                    message: "Record not found"
-                                                });*/
-                                            }
-                                            else
-                                            {
-                                                console.log(result3);
-                                                let walletAddress = result3.walletAddress;
-                                                let network = result3.network;
-                                                let QRImage = result3.QRImage;
-                                                
-                                                var arr = {
-                                                    "websiteDomain": result.websiteDomain,
-                                                    "taxId": result.taxId,
-                                                    "widgetCode": result.widgetCode,
-                                                    "walletAddress": walletAddress,
-                                                    "network": network,
-                                                    "QRImage": QRImage,
-                                                    "fees": fees,
-                                                };
-                                                console.log(arr);
-                                                // res.status(200).json(arr);
-                                                data.push(arr);
-                                            }
-                                        });
-                                    }
-                                    else
-                                    {
-                                        res.status(200).json({
-                                            status: 3,
-                                            message: "Record not found"
-                                        });
-                                    }
-                                }
-                            });
+                            let result2 = get_user_crypto_accounts(userId, crypId);
+
+                            var arr1 = {
+                                "websiteDomain": result.websiteDomain,
+                                "taxId": result.taxId,
+                                "widgetCode": result.widgetCode,
+                                "walletAddress": result1[i].walletAddress,
+                                "network": result1[i].network,
+                                "QRImage": result1[i].QRImage,
+                                "fees": result2.fees,
+                            };
+                            console.log(arr1);
+                            // res.status(200).json(arr1);
+                            data.push(arr1);
                         }
-                    }).catch(error => {
-                        res.status(200).json({
-                            status: 2,
-                            message: "Something went wrong!",
-                            error: error
-                        });
-                    });
+                        
+                    }
                 }
-                else if(v == "BANK TRANSFER")
+                /*else if(v == "BANK TRANSFER")
                 {
                     models.UsersBank.findOne({
                         where: {
@@ -480,7 +421,7 @@ function widget_details(req, res) {
                     };
                     
                     data.push(arr2);
-                }
+                }*/
             }
             res.status(200).json(data);
         }
@@ -490,6 +431,87 @@ function widget_details(req, res) {
             message: "Something went wrong!",
             error: error
         });
+    });
+}
+
+const crypto_details = async function(curr) {
+    models.CryptoAccount.findAll({
+        where: {
+            currency: curr
+        },
+    }).then(result1 => {
+        return result1;
+    }).catch(error => {
+        return null;
+    });
+}
+
+function get_user_crypto_accounts(userId, id) {
+    models.usersCryptoAccount.findOne({
+        where: {
+            userId: userId,
+            cryptoAccountId: id
+        },
+    }).then(result2 => {
+        if(result2 === null)
+        {
+            /*res.status(200).json({
+                status: 3,
+                message: "Record not found"
+            });*/
+            return null;
+        }
+        else
+        {
+            return result2;
+            /*let selected = 0;
+            let fees = 0;
+            for (var i = 0; i < result2.length; i++) 
+            {
+                selected = result2[i].cryptoAccountId;
+                fees = result2[i].fees;
+            }
+            if(selected != 0)
+            {
+                models.CryptoAccount.findAll({
+                    where: {
+                        id: selected
+                    },
+                }).then(result3 => {
+                    if(result3 === null)
+                    {
+                        //
+                    }
+                    else
+                    {
+                        console.log(result3);
+                        let walletAddress = result3.walletAddress;
+                        let network = result3.network;
+                        let QRImage = result3.QRImage;
+                        
+                        var arr = {
+                            "websiteDomain": result.websiteDomain,
+                            "taxId": result.taxId,
+                            "widgetCode": result.widgetCode,
+                            "walletAddress": walletAddress,
+                            "network": network,
+                            "QRImage": QRImage,
+                            "fees": fees,
+                        };
+                        console.log(arr);
+                        // res.status(200).json(arr);
+                        data.push(arr);
+                    }
+                });
+            }
+            else
+            {
+                res.status(200).json({
+                    status: 3,
+                    message: "Record not found"
+                });
+            }*/
+        }
     });
 }
 
@@ -769,6 +791,70 @@ function save_withdraw_request(req, res) {
     }
 }
 
+function withdraw_status_api(req, res) {
+    let resp = helper.check_key(req);
+    if(resp !== "Successfully Verified")
+    {
+        // console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        let userId = 41;
+
+        const post1 = {
+            withdrawId: req.body.withdrawId
+        }
+
+        const schema = {
+            withdrawId: {type: "string", optional: false, empty: false}
+        }
+
+        const v = new Validator();
+        const validationResponse = v.validate(post1, schema);
+
+        if(validationResponse !== true){
+            return res.status(200).json({
+                apiRequestStatus: 0,
+                message: "validation failed",
+                errors: validationResponse
+            });
+        }
+
+        let withdrawId = post1.withdrawId;
+
+        models.WithdrawRequest.findOne({
+            where: {
+                id: withdrawId
+            }
+        }).then(result => {
+
+            if(result === null)
+            {
+                res.status(200).json({
+                    apiRequestStatus: 3,
+                    "message": "Withdraw Request not found"
+                });
+            }
+            else
+            {
+                res.status(200).json({
+                    apiRequestStatus: 1,
+                    message: "success",
+                    status: result.withdrawStatus,
+                });
+            }
+            
+        }).catch(error => {
+            res.status(200).json({
+                apiRequestStatus: 2,
+                message: "Something went wrong save",
+                error: error
+            });
+        });
+    }
+}
+
 module.exports = {
     save_contact: save_contact,
     payment_link_details:payment_link_details,
@@ -776,5 +862,6 @@ module.exports = {
     save_link_transaction:save_link_transaction,
     uploadImg:uploadImg,
     link_transaction_status:link_transaction_status,
-    save_withdraw_request:save_withdraw_request
+    save_withdraw_request:save_withdraw_request,
+    withdraw_status_api:withdraw_status_api
 }
