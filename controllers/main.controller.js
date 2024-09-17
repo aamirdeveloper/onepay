@@ -270,13 +270,25 @@ function payment_link_details(req, res) {
     });
 }
 
+function inArray(needle, haystack) {
+    var length = haystack.length;
+    for(var i = 0; i < length; i++) {
+        if(haystack[i] == needle) return true;
+    }
+    return false;
+}
+
 function widget_details(req, res) {
     const post = {
-        code: req.body.code
+        code: req.body.code,
+        paymentType: req.body.paymentType,
+        currency: req.body.currency,
     }
 
     const schema = {
-        code: {type: "string", optional: false, empty: false}
+        code: {type: "string", optional: false, empty: false},
+        paymentType: {type: "string", optional: false, empty: false},
+        currency: {type: "string", optional: false},
     }
 
     const v = new Validator();
@@ -290,16 +302,9 @@ function widget_details(req, res) {
         });
     }
 
-    const d = get_widget_details(req, res);
-    res.status(200).json({
-        status: 1,
-        data: d
-    });
-}
-
-const get_widget_details = async function(req, res) {
-    
     let code = req.body.code;
+    let paymentType = req.body.paymentType;
+    let currency = req.body.currency;
     
     models.Widget.findOne({where:{widgetCode:code}}).then(result =>{
         if(result === null){
@@ -312,47 +317,120 @@ const get_widget_details = async function(req, res) {
             let paymentTypes = result.paymentTypes;
             
             let arr = paymentTypes.split(",");
-            let data = [];
-            for (var i = 0; i < arr.length; i++) 
+
+            if(paymentType == "Crypto")
             {
-                let v = arr[i];
-                if(v == "BTC" || v == "USDT")
+                if(inArray(currency, arr))
                 {
-                    const result1 = crypto_details(v);
-                    console.log(result1);
-                    if(result1 !== null)
-                    {
-                        // let arr = [];   
-                        for (var i = 0; i < result1.length; i++) 
+                    models.CryptoAccount.findAll({
+                        where: {
+                            currency: currency
+                        },
+                    }).then(result1 => {
+                        if(result1 !== null)
                         {
-                            // console.log(result1[i]);
-                            // arr.push(result1[i].id);
-                            let crypId = result1[i].id;
+                            let nArr = [];
+                            for (var i = 0; i < result1.length; i++) 
+                            {
+                                let crypId = result1[i].id;
+                                nArr.push(crypId);
+                            }
+                            // console.log(nArr);
 
-                            let result2 = get_user_crypto_accounts(userId, crypId);
+                            models.usersCryptoAccount.findOne({
+                                where: {
+                                    userId: userId,
+                                    cryptoAccountId: nArr
+                                },
+                                order: [
+                                    ['id', 'DESC']
+                                ],
+                            }).then(result2 => {
+                                if(result2 === null)
+                                {
+                                    res.status(200).json({
+                                        status: 4,
+                                        message: "Record not found"
+                                    });
+                                }
+                                else
+                                {
+                                    console.log(result2);
+                                    let selected = result2.cryptoAccountId;
+                                    let fees = result2.fees;
+                                    /*for (var i = 0; i < result2.length; i++) 
+                                    {
+                                        selected = result2[i].cryptoAccountId;
+                                        fees = result2[i].fees;
+                                    }*/
+                                    if(selected != 0)
+                                    {
+                                        models.CryptoAccount.findOne({
+                                            where: {
+                                                id: selected
+                                            },
+                                        }).then(result3 => {
+                                            if(result3 === null)
+                                            {
+                                                //
+                                            }
+                                            else
+                                            {
+                                                console.log(result3);
+                                                let walletAddress = result3.walletAddress;
+                                                let network = result3.network;
+                                                let QRImage = result3.QRImage;
+                                                
+                                                var arr1 = {
+                                                    status: 1,
+                                                    message: "success",
+                                                    "websiteDomain": result.websiteDomain,
+                                                    "taxId": result.taxId,
+                                                    "widgetCode": result.widgetCode,
+                                                    "walletAddress": walletAddress,
+                                                    "network": network,
+                                                    "QRImage": QRImage,
+                                                    "fees": fees,
+                                                };
 
-                            var arr1 = {
-                                "websiteDomain": result.websiteDomain,
-                                "taxId": result.taxId,
-                                "widgetCode": result.widgetCode,
-                                "walletAddress": result1[i].walletAddress,
-                                "network": result1[i].network,
-                                "QRImage": result1[i].QRImage,
-                                "fees": result2.fees,
-                            };
-                            console.log(arr1);
-                            // res.status(200).json(arr1);
-                            data.push(arr1);
+                                                res.status(200).json(arr1);
+                                            }
+                                        });
+                                    }
+                                    else
+                                    {
+                                        res.status(200).json({
+                                            status: 3,
+                                            message: "Record not found"
+                                        });
+                                    }
+                                }
+                            });
                         }
-                        
-                    }
+                    }).catch(error => {
+                        //
+                    });
                 }
-                /*else if(v == "BANK TRANSFER")
+                else
+                {
+                    res.status(200).json({
+                        status: 4,
+                        message: "No result"
+                    });
+
+                }
+            }
+            else if(paymentType == "Bank Transfer")
+            {
+                if(inArray("BANK TRANSFER", arr))
                 {
                     models.UsersBank.findOne({
                         where: {
                             userId: userId
                         },
+                        order: [
+                            ['id', 'DESC']
+                        ],
                     }).then(result1 => {
                         if(result1 === null)
                         {
@@ -390,8 +468,7 @@ const get_widget_details = async function(req, res) {
                                         "fees": fees,
                                     };
 
-                                    // res.status(200).json(arr);
-                                    data.push(arr1);
+                                    res.status(200).json(arr1);
                                 }
                             }).catch(error => {
                                 res.status(200).json({
@@ -412,18 +489,19 @@ const get_widget_details = async function(req, res) {
                 }
                 else
                 {
-                    var arr2 = {
-                        status: 1, 
-                        "message": "success",
-                        "websiteDomain": result.websiteDomain,
-                        "taxId": result.taxId,
-                        "widgetCode": result.widgetCode,
-                    };
-                    
-                    data.push(arr2);
-                }*/
+                    res.status(200).json({
+                        status: 4,
+                        message: "No result"
+                    });
+                }
             }
-            res.status(200).json(data);
+            else
+            {
+                res.status(200).json({
+                    status: 3,
+                    message: "Wrong paymentType"
+                });
+            }
         }
     }).catch(error => {
         res.status(200).json({
