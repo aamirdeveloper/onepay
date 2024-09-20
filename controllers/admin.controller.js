@@ -632,6 +632,12 @@ function add_bank_account(req, res) {
     }
     else
     {
+        let imageUrl = '';
+        if(req.hasOwnProperty('file'))
+        {
+            imageUrl = req.file.filename;
+        }
+
         const post = {
             bankName: req.body.bankName,
             bankAccountNumber: req.body.bankAccountNumber,
@@ -657,6 +663,8 @@ function add_bank_account(req, res) {
 
         // let login_data = helper.get_adminId_token(req);
         // const adminId = login_data.adminId;
+
+        post.imageName = imageUrl;
 
         models.BankAccount.create(post).then(result => {
 
