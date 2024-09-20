@@ -17,6 +17,7 @@ module.exports = (sequelize, DataTypes) => {
     bankName: DataTypes.STRING,
     bankAccountNumber: DataTypes.STRING,
     bankAccountName: DataTypes.STRING,
+    imageName: DataTypes.STRING,
   }, {
     sequelize,
     modelName: 'BankAccount',
