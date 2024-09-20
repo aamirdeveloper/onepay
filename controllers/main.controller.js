@@ -79,6 +79,7 @@ function payment_link_details(req, res) {
     
     models.PaymentLink.findOne({where:{paymentCode:code}}).then(result =>{
         if(result === null){
+            console.log('aa');
             res.status(200).json({
                 status: 0,
                 message: "Not found"
@@ -95,6 +96,9 @@ function payment_link_details(req, res) {
                     where: {
                         userId: userId
                     },
+                    order: [
+                        ['id', 'DESC']
+                    ],
                 }).then(result1 => {
                     if(result1 === null)
                     {
@@ -133,6 +137,7 @@ function payment_link_details(req, res) {
                                     "bankName": result2.bankName,
                                     "bankAccountNumber": result2.bankAccountNumber,
                                     "bankAccountName": result2.bankAccountName,
+                                    "imageName": result2.imageName,
                                     "fees": fees,
                                 };
 
@@ -465,6 +470,7 @@ function widget_details(req, res) {
                                         "bankName": result2.bankName,
                                         "bankAccountNumber": result2.bankAccountNumber,
                                         "bankAccountName": result2.bankAccountName,
+                                        "imageName": result2.imageName,
                                         "fees": fees,
                                     };
 
@@ -933,6 +939,90 @@ function withdraw_status_api(req, res) {
     }
 }
 
+function test_api(req, res) {
+    const post = {
+        code: req.body.code,
+        paymentType: req.body.paymentType,
+        currency: req.body.currency,
+    }
+
+    const schema = {
+        code: {type: "string", optional: false, empty: false},
+        paymentType: {type: "string", optional: false, empty: false},
+        currency: {type: "string", optional: false},
+    }
+
+    const v = new Validator();
+    const validationResponse = v.validate(post, schema);
+
+    if(validationResponse !== true){
+        return res.status(200).json({
+            status: 0,
+            message: "validation failed",
+            errors: validationResponse
+        });
+    }
+
+    let code = req.body.code;
+
+    models.Widget.findOne({where:{widgetCode:code}}).then(result =>{
+        if(result === null){
+            res.status(200).json({
+                status: 0,
+                message: "Not found"
+            });
+        }else{
+            let userId = result.userId;
+            let paymentTypes = result.paymentTypes;
+            let curr = 'BTC';
+
+            /*one( (data1, curr) => {
+                console.log(data1);
+                let id = 4;
+                two( (data2, userId, id) => {
+                    console.log(data2);
+                    res.status(200).json({
+                        r1: data1,
+                        r2: data2
+                    });
+                });
+            });*/
+
+            res.status(200).json({
+                status: 0,
+                message: "Not found"
+            });
+        }
+    });
+}
+
+/*function one(callback, currency) {
+    models.CryptoAccount.findAll({
+        where: {
+            currency: currency
+        },
+    }).then(result1 => {
+        callback(result1);
+    });
+    // db.query("SQL",(result) => {
+   
+    // });
+}
+
+function two(callback, userId, id) {
+    models.usersCryptoAccount.findOne({
+        where: {
+            userId: userId,
+            cryptoAccountId: id
+        },
+    }).then(result2 => {
+        callback(result2);
+    });
+    // db.query("SQL",(result) => {
+    //     callback(result);
+    // });
+}*/
+
 module.exports = {
     save_contact: save_contact,
     payment_link_details:payment_link_details,
@@ -941,5 +1031,6 @@ module.exports = {
     uploadImg:uploadImg,
     link_transaction_status:link_transaction_status,
     save_withdraw_request:save_withdraw_request,
-    withdraw_status_api:withdraw_status_api
+    withdraw_status_api:withdraw_status_api,
+    test_api:test_api
 }
