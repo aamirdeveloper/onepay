@@ -19,7 +19,7 @@ router.post('/add-referral-code', adminController.add_referral_code)
 
 router.get('/contact-requests', adminController.contact_requests)
 
-router.post('/add-bank-account', adminController.add_bank_account)
+router.post('/add-bank-account', adminController.uploadImg, adminController.add_bank_account)
 router.get('/bank-accounts-list', adminController.bank_accounts_list)
 router.post('/update-bank-account', adminController.update_bank_account)
 router.post('/delete-bank-account', adminController.delete_bank_account)
