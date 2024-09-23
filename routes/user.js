@@ -25,4 +25,6 @@ router.get('/transaction-withdraw', userController.transaction_withdraw);
 
 router.post('/add-widget', userController.add_widget);
 
+router.get('/get-promptpay', userController.get_promptpay);
+
 module.exports= router;
