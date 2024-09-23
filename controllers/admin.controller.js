@@ -2045,6 +2045,289 @@ function get_users_withdraws(req, res) {
     }
 }
 
+function add_promptpay(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        const post = {
+            promptPayCode: req.body.promptPayCode
+        }
+
+        const schema = {
+            promptPayCode: {type: "string", optional: false, empty: false}
+        }
+
+        const v = new Validator();
+        const validationResponse = v.validate(post, schema);
+
+        if(validationResponse !== true){
+            return res.status(200).json({
+                status: 0,
+                message: "validation failed",
+                errors: validationResponse
+            });
+        }
+
+        models.PromptPay.create(post).then(result => {
+
+            res.status(200).json({
+                status: 1,
+                message: "Data saved",
+                post: result
+            });
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong",
+                error: error
+            });
+        });
+    }
+}
+
+function promptpay_list(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        models.PromptPay.findAll().then(result => {
+            res.status(200).json({
+                status: 1,
+                data: result
+            });
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong!",
+                error: error
+            });
+        });
+    }
+}
+
+function delete_promptpay(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        const post = {
+            id: req.body.id
+        }
+
+        const schema = {
+            id: {type: "string", optional: false, empty: false}
+        }
+
+        const v = new Validator();
+        const validationResponse = v.validate(post, schema);
+
+        if(validationResponse !== true){
+            return res.status(200).json({
+                status: 0,
+                message: "validation failed",
+                errors: validationResponse
+            });
+        }
+
+        models.PromptPay.destroy({
+            where:{id:req.body.id}
+        }).then(result => {
+            if(result === 1)
+            {
+                res.status(200).json({
+                    status: 1,
+                    message: "Data deleted",
+                });
+            }
+            else
+            {
+                res.status(200).json({
+                    status: 0,
+                    message: "Not found",
+                });
+            }
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong",
+                error: error
+            });
+        });
+    }
+}
+
+function assign_promptpay(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        const post = {
+            userId: req.body.userId,
+            promptPayId: req.body.promptPayId,
+            fees: req.body.fees,
+        }
+
+        const schema = {
+            userId: {type: "string", optional: false, empty: false},
+            promptPayId: {type: "string", optional: false, empty: false},
+            fees: {type: "string", optional: false, empty: false}
+        }
+
+        const v = new Validator();
+        const validationResponse = v.validate(post, schema);
+
+        if(validationResponse !== true){
+            return res.status(200).json({
+                status: 0,
+                message: "validation failed",
+                errors: validationResponse
+            });
+        }
+
+        models.UsersPromptPay.findOne({
+            where:{userId:req.body.userId, promptPayId:req.body.promptPayId}
+        }).then(result =>{
+            if(result === null){
+                models.UsersPromptPay.create(post).then(result => {
+
+                    res.status(200).json({
+                        status: 1,
+                        message: "Data saved",
+                        post: result
+                    });
+                }).catch(error => {
+                    res.status(200).json({
+                        status: 2,
+                        message: "Something went wrong",
+                        error: error
+                    });
+                });
+            }
+            else
+            {
+                res.status(200).json({
+                    status: 3,
+                    message: "Already added"
+                });
+            }
+        })
+    }
+}
+
+function users_promptpays(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        const post = {
+            userId: req.body.userId
+        }
+
+        const schema = {
+            userId: {type: "string", optional: false, empty: false}
+        }
+
+        const v = new Validator();
+        const validationResponse = v.validate(post, schema);
+
+        if(validationResponse !== true){
+            return res.status(200).json({
+                status: 0,
+                message: "validation failed",
+                errors: validationResponse
+            });
+        }
+
+        let userId = post.userId;
+
+        models.UsersPromptPay.findAll().then(result => {
+            res.status(200).json({
+                status: 1,
+                data: result
+            });
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong!",
+                error: error
+            });
+        });
+    }
+}
+
+function remove_users_promptpay(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        const post = {
+            userId: req.body.userId,
+            promptPayId: req.body.promptPayId
+        }
+
+        const schema = {
+            userId: {type: "string", optional: false, empty: false},
+            promptPayId: {type: "string", optional: false, empty: false}
+        }
+
+        const v = new Validator();
+        const validationResponse = v.validate(post, schema);
+
+        if(validationResponse !== true){
+            return res.status(200).json({
+                status: 0,
+                message: "validation failed",
+                errors: validationResponse
+            });
+        }
+
+        models.UsersPromptPay.destroy({
+            where:{userId:req.body.userId, promptPayId:req.body.promptPayId}
+        }).then(result =>{
+            if(result === 1)
+            {
+                res.status(200).json({
+                    status: 1,
+                    message: "Data removed",
+                    post: result
+                });
+            }
+            else
+            {
+                res.status(200).json({
+                    status: 2,
+                    message: "Something went wrong!"
+                });
+            }
+        })
+    }
+}
+
 module.exports = {
     index:index,
     login: login,
@@ -2082,5 +2365,11 @@ module.exports = {
     update_link_transaction_status:update_link_transaction_status,
     completed_transaction:completed_transaction,
     get_users_deposits:get_users_deposits,
-    get_users_withdraws:get_users_withdraws
+    get_users_withdraws:get_users_withdraws,
+    add_promptpay:add_promptpay,
+    promptpay_list:promptpay_list,
+    delete_promptpay:delete_promptpay,
+    assign_promptpay:assign_promptpay,
+    users_promptpays:users_promptpays,
+    remove_users_promptpay:remove_users_promptpay,
 };
