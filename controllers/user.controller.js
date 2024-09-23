@@ -733,6 +733,79 @@ function save_comment(req, res) {
     }
 }
 
+function get_promptpay(req, res) {
+    let resp = helper.check_token(req);
+    if(resp !== "Successfully Verified")
+    {
+        console.error(`Token error`, resp);
+        res.json(resp);
+    }
+    else
+    {
+        let user = helper.get_userId_token(req);
+        let userId = user.userId;
+
+        models.UsersPromptPay.findOne({
+            where: {
+                userId: userId
+            },
+            order: [
+                ['id', 'DESC']
+            ],
+        }).then(result1 => {
+            if(result1 === null)
+            {
+                res.status(200).json({
+                    status: 3,
+                    message: "Record not found"
+                });
+            }
+            else
+            {
+                let fees = result1.fees;
+                models.PromptPay.findOne({
+                    where: {
+                        id: result1.promptPayId
+                    },
+                }).then(result2 => {
+                    if(result2 === null)
+                    {
+                        res.status(200).json({
+                            status: 3,
+                            message: "Record not found"
+                        });
+                    }
+                    else
+                    {
+                        var arr1 = {
+                            status: 1, 
+                            "message": "success",
+                            "promptPayId": result1.promptPayId,
+                            "promptPayCode": result2.promptPayCode,
+                            "fees": fees,
+                        };
+
+                        res.status(200).json(arr1);
+                    }
+                }).catch(error => {
+                    res.status(200).json({
+                        status: 2,
+                        message: "Something went wrong!",
+                        error: error
+                    });
+                });
+            }
+            
+        }).catch(error => {
+            res.status(200).json({
+                status: 2,
+                message: "Something went wrong!",
+                error: error
+            });
+        });
+    }
+}
+
 module.exports = {
     index:index,
     add_payment_link:add_payment_link,
@@ -743,5 +816,6 @@ module.exports = {
     transaction_deposits:transaction_deposits,
     save_comment:save_comment,
     save_withdraw_request:save_withdraw_request,
-    transaction_withdraw:transaction_withdraw
+    transaction_withdraw:transaction_withdraw,
+    get_promptpay:get_promptpay
 };
