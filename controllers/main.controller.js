@@ -258,6 +258,73 @@ function payment_link_details(req, res) {
                     });
                 });
             }
+            else if(paymentType == "Promptpay")
+            {
+                models.UsersPromptPay.findOne({
+                    where: {
+                        userId: userId
+                    },
+                    order: [
+                        ['id', 'DESC']
+                    ],
+                }).then(result1 => {
+                    if(result1 === null)
+                    {
+                        res.status(200).json({
+                            status: 3,
+                            message: "Record not found"
+                        });
+                    }
+                    else
+                    {
+                        let fees = result1.fees;
+                        models.PromptPay.findOne({
+                            where: {
+                                id: result1.promptPayId
+                            },
+                        }).then(result2 => {
+                            if(result2 === null)
+                            {
+                                res.status(200).json({
+                                    status: 3,
+                                    message: "Record not found"
+                                });
+                            }
+                            else
+                            {
+                                var arr = {
+                                    status: 1, 
+                                    "message": "success",
+                                    "paymentType": result.paymentType,
+                                    "productName": result.productName,
+                                    "productImage": result.productImage,
+                                    "price": result.price,
+                                    "currency": result.currency,
+                                    "paymentCode": result.paymentCode,
+                                    "linkStatus": result.linkStatus,
+                                    "promptPayCode": result2.promptPayCode,
+                                    "fees": fees,
+                                };
+
+                                res.status(200).json(arr);
+                            }
+                        }).catch(error => {
+                            res.status(200).json({
+                                status: 2,
+                                message: "Something went wrong!",
+                                error: error
+                            });
+                        });
+                    }
+                    
+                }).catch(error => {
+                    res.status(200).json({
+                        status: 2,
+                        message: "Something went wrong!",
+                        error: error
+                    });
+                });
+            }
             else {
                 res.status(200).json({
                     status: 1,
@@ -471,6 +538,79 @@ function widget_details(req, res) {
                                         "bankAccountNumber": result2.bankAccountNumber,
                                         "bankAccountName": result2.bankAccountName,
                                         "imageName": result2.imageName,
+                                        "fees": fees,
+                                    };
+
+                                    res.status(200).json(arr1);
+                                }
+                            }).catch(error => {
+                                res.status(200).json({
+                                    status: 2,
+                                    message: "Something went wrong!",
+                                    error: error
+                                });
+                            });
+                        }
+                        
+                    }).catch(error => {
+                        res.status(200).json({
+                            status: 2,
+                            message: "Something went wrong!",
+                            error: error
+                        });
+                    });
+                }
+                else
+                {
+                    res.status(200).json({
+                        status: 4,
+                        message: "No result"
+                    });
+                }
+            }
+            else if(paymentType == "PROMTPAY")
+            {
+                if(inArray("PROMTPAY", arr))
+                {
+                    models.UsersPromptPay.findOne({
+                        where: {
+                            userId: userId
+                        },
+                        order: [
+                            ['id', 'DESC']
+                        ],
+                    }).then(result1 => {
+                        if(result1 === null)
+                        {
+                            res.status(200).json({
+                                status: 3,
+                                message: "Record not found"
+                            });
+                        }
+                        else
+                        {
+                            let fees = result1.fees;
+                            models.PromptPay.findOne({
+                                where: {
+                                    id: result1.promptPayId
+                                },
+                            }).then(result2 => {
+                                if(result2 === null)
+                                {
+                                    res.status(200).json({
+                                        status: 3,
+                                        message: "Record not found"
+                                    });
+                                }
+                                else
+                                {
+                                    var arr1 = {
+                                        status: 1, 
+                                        "message": "success",
+                                        "websiteDomain": result.websiteDomain,
+                                        "taxId": result.taxId,
+                                        "widgetCode": result.widgetCode,
+                                        "promptPayCode": result2.promptPayCode,
                                         "fees": fees,
                                     };
 
