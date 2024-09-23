@@ -54,4 +54,12 @@ router.get('/completed-transaction', adminController.completed_transaction);
 router.post('/get-users-deposits', adminController.get_users_deposits);
 router.post('/get-users-withdraws', adminController.get_users_withdraws);
 
+router.post('/add-promptpay', adminController.add_promptpay)
+router.get('/promptpay-list', adminController.promptpay_list)
+router.post('/delete-promptpay', adminController.delete_promptpay)
+
+router.post('/assign-promptpay', adminController.assign_promptpay)
+router.post('/users-promptpays', adminController.users_promptpays)
+router.post('/remove-users-promptpay', adminController.remove_users_promptpay)
+
 module.exports= router;
